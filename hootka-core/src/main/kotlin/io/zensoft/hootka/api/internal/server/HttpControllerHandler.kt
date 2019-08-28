@@ -1,6 +1,5 @@
 package io.zensoft.hootka.api.internal.server
 
-import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.Unpooled
 import io.netty.buffer.Unpooled.EMPTY_BUFFER
 import io.netty.channel.ChannelHandler
@@ -12,8 +11,6 @@ import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.NettyWrappedHttpRequest
 import io.zensoft.hootka.api.internal.http.NettyWrappedHttpResponse
-import io.zensoft.hootka.api.model.HttpStatus
-import io.zensoft.hootka.api.model.MimeType
 import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 

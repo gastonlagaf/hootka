@@ -12,7 +12,8 @@ class WebConfig(
     val session: SessionConfig = SessionConfig(),
     val security: SecurityConfig = SecurityConfig(),
     val static: StaticConfig = StaticConfig(),
-    val freemarker: FreemarkerPathProperties = FreemarkerPathProperties()
+    val freemarker: FreemarkerPathProperties = FreemarkerPathProperties(),
+    val server: String = "nio" // or "netty"
 )
 
 class SessionConfig(

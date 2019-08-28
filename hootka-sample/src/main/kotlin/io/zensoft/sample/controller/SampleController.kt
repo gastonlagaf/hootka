@@ -5,10 +5,7 @@ import io.zensoft.hootka.api.HttpSession
 import io.zensoft.hootka.api.SecurityProvider
 import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.WrappedHttpResponse
-import io.zensoft.hootka.api.model.HttpMethod
-import io.zensoft.hootka.api.model.InMemoryFile
-import io.zensoft.hootka.api.model.MimeType
-import io.zensoft.hootka.api.model.SimpleAuthenticationDetails
+import io.zensoft.hootka.api.model.*
 import io.zensoft.sample.domain.AuthRequest
 import io.zensoft.sample.domain.MultiObject
 import io.zensoft.sample.domain.User
@@ -33,6 +30,7 @@ class SampleController(
     }
 
     @Stateless
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @RequestMapping(method = HttpMethod.POST, value = ["/api/mutate/{firstName}"])
     fun mutate(@RequestBody request: UserDto, @PathVariable firstName: String): UserDto {
         return UserDto(firstName, request.lastName, request.age)

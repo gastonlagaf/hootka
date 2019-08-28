@@ -21,11 +21,13 @@ import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
 import io.zensoft.hootka.api.internal.server.HttpChannelInitializer
 import io.zensoft.hootka.api.internal.server.HttpControllerHandler
 import io.zensoft.hootka.api.internal.server.HttpServer
+import io.zensoft.hootka.api.internal.server.Server
 import io.zensoft.hootka.api.internal.validation.DefaultValidationProvider
 import io.zensoft.hootka.api.model.SimpleAuthenticationDetails
 import io.zensoft.hootka.autoconfigure.property.WebConfig
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -122,8 +124,12 @@ class ServerWebConfiguration(
     fun httpChannelInitializer(): HttpChannelInitializer = HttpChannelInitializer(httpControllerHandler())
 
     @Bean
-    @ConditionalOnMissingBean(HttpServer::class)
-    fun httpServer(): HttpServer = HttpServer(webConfig.port, httpChannelInitializer())
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
+    fun nettyHttpServer(): HttpServer = HttpServer(webConfig.port, httpChannelInitializer())
+
+    @Bean
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
+    fun nioHttpServer(): Server = Server(requestProcessor())
 
     // Request Mappers
 

@@ -10,37 +10,26 @@ import io.zensoft.hootka.api.model.MimeType
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 
-class NettyWrappedHttpResponse(
+class DefaultWrappedHttpResponse(
         private var httpStatus: HttpStatus = HttpStatus.OK,
-        private var contentType: MimeType = MimeType.APPLICATION_JSON,
         private var content: ByteArray? = null,
         private val headers: HttpHeaders = DefaultHttpHeaders(),
+        private var contentType: MimeType = MimeType.APPLICATION_JSON,
         private val cookies: MutableList<Cookie> = mutableListOf()
+
 ) : WrappedHttpResponse {
 
-    override fun getContent(): ByteArray? {
-        return content
-    }
+    override fun getHttpStatus(): HttpStatus = httpStatus
 
-    override fun getHttpStatus(): HttpStatus {
-        return httpStatus
-    }
+    override fun getContentStream(): InputStream = ByteArrayInputStream(content)
 
-    override fun getContentStream(): InputStream {
-        return ByteArrayInputStream(content)
-    }
+    override fun getContent(): ByteArray? = content
 
-    override fun getHeader(name: String): String? {
-        return headers.get(name)
-    }
+    override fun getHeader(name: String): String? = headers.get(name)
 
-    override fun getHeaders(): Map<String, List<String>> {
-        return headers.names().associate { it to headers.getAll(it) }
-    }
+    override fun getHeaders(): Map<String, List<String>> = headers.names().associateWith { headers.getAll(it) }
 
-    override fun getContentType(): MimeType {
-        return contentType
-    }
+    override fun getContentType(): MimeType = contentType
 
     override fun setHeader(key: String, value: String) {
         headers.add(key, value)
@@ -54,14 +43,11 @@ class NettyWrappedHttpResponse(
         cookies.add(cookie)
     }
 
-    override fun getCookies(): List<Cookie> {
-        return cookies
-    }
+    override fun getCookies(): List<Cookie> = cookies
 
     override fun mutate(status: HttpStatus, contentType: MimeType, content: ByteArray?) {
         this.httpStatus = status
         this.contentType = contentType
         this.content = content
     }
-
 }
