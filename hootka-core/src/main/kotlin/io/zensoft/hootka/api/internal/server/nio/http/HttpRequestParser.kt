@@ -5,7 +5,7 @@ import io.zensoft.hootka.api.internal.server.nio.http.domain.RawHttpRequest
 import io.zensoft.hootka.api.model.HttpMethod
 
 class HttpRequestParser(
-        private val string: String?
+        private val string: String
 ) {
 
     private var caret: Int = 0
@@ -42,14 +42,14 @@ class HttpRequestParser(
     }
 
     fun params(): Map<String, List<String>> {
-        val params = mutableMapOf<String, List<String>>()
-        if (string === null) {
-            return params
-        } else {
-            while (caret < string.length) {
-                val paramName = readUntil(EQ)
-                val param = readUntil(PARAM_SEPARATOR)
-                params[paramName] = param.split(',')
+        val params = mutableMapOf<String, MutableList<String>>()
+        while (caret < string.length) {
+            val paramName = readParams(EQ)
+            val param = readParams(PARAM_SEPARATOR)
+            if (params.contains(paramName)) {
+                params[paramName]?.addAll(param.split(','))
+            } else {
+                params[paramName] = param.split(',') as MutableList<String>
             }
         }
         return params
@@ -57,9 +57,9 @@ class HttpRequestParser(
 
     fun cookie(): Map<String, String> {
         val cookie = mutableMapOf<String, String>()
-        while (caret < string!!.length) {
-            val cookieKey = readUntil(EQ)
-            val cookieValue = readUntil(COOKIE_SEPARATOR)
+        while (caret < string.length) {
+            val cookieKey = readParams(EQ)
+            val cookieValue = readParams(COOKIE_SEPARATOR)
             skip(1)
             cookie[cookieKey] = cookieValue
         }
@@ -72,7 +72,7 @@ class HttpRequestParser(
 
     fun readUntil(char: Char = NEW_LINE): String {
         val result = StringBuilder()
-        var c = string!![caret]
+        var c = string[caret]
         while (c != char && c != NEW_LINE && !contentRead()) {
             result.append(c)
             c = string[++caret]
@@ -87,7 +87,7 @@ class HttpRequestParser(
 
     fun readPath(char: Char): String {
         val result = StringBuilder()
-        var c = string!![caret]
+        var c = string[caret]
         while (c != char && c != SPACE) {
             result.append(c)
             c = string[++caret]
@@ -100,8 +100,22 @@ class HttpRequestParser(
         return result.toString()
     }
 
+    fun readParams(char: Char): String {
+        val result = StringBuilder()
+        var c = string[caret]
+        while (c != char && c != NEW_LINE && !contentRead()) {
+            result.append(c)
+            c = string[++caret]
+        }
+        if (caret == string.lastIndex) {
+            result.append(c)
+        }
+        skip(1)
+        return result.toString()
+    }
+
     fun contentRead(): Boolean {
-        return caret >= string!!.lastIndex
+        return caret >= string.lastIndex
     }
 
     private fun skip(chars: Int) {

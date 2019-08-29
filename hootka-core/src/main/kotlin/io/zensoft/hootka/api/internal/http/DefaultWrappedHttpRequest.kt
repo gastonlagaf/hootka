@@ -12,7 +12,7 @@ import java.nio.charset.Charset
 class DefaultWrappedHttpRequest(
         private val path: String,
         private val method: HttpMethod,
-        private var params: String? = null,
+        private var params: String?,
         private val content: ByteArray,
         private val headers: Map<String, String>,
         private val address: SocketAddress?
@@ -30,7 +30,13 @@ class DefaultWrappedHttpRequest(
 
     override fun getMethod(): HttpMethod = method
 
-    override fun getQueryParameters(): Map<String, List<String>> = HttpRequestParser(params).params()
+    override fun getQueryParameters(): Map<String, List<String>> {
+        var paramsMap = mapOf<String, List<String>>()
+        if (null != params) {
+            paramsMap = HttpRequestParser(params!!).params()
+        }
+        return paramsMap
+    }
 
     override fun getContentStream(): InputStream = content.inputStream()
 
