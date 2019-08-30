@@ -1,13 +1,17 @@
 package io.zensoft.hootka.api.internal.server.nio.threads
 
 
+import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpResponse
+import io.zensoft.hootka.api.internal.mapper.DefaultMultipartFileMapper
 import io.zensoft.hootka.api.internal.server.nio.http.DefaultHttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestChunkCollector
+import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestParser
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.channels.*
+import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 
@@ -57,9 +61,10 @@ class DefaultWorker(
                         if (collector.requestRead()) {
                             val address = channel.remoteAddress
                             val wrappedRequest = collector.aggregate(address)
-                            response(channel)
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
+                            println()
+                            response(channel, wrappedResponse)
                         }
                     }
                 }
@@ -71,11 +76,11 @@ class DefaultWorker(
         running = false
     }
 
-    private fun response(channel: SocketChannel) {
-        val content = "Nice"
+    private fun response(channel: SocketChannel, responsee: WrappedHttpResponse) {
+        val content = String(responsee.getContent()!!)
         val response = arrayOf("HTTP/1.1 200 OK",
                 "Content-Type: text/plain",
-                "Content-Length: ${content.toByteArray().size}",
+                "Content-Length: ${content.length}",
                 "",
                 content).joinToString("\r\n").toByteArray()
         channel.write(ByteBuffer.wrap(response))

@@ -42,7 +42,7 @@ class DefaultWrappedHttpRequest(
 
     override fun getContentAsString(charset: Charset): String = String(content, charset)
 
-    override fun getHeader(key: String): String? = headers[key]
+    override fun getHeader(key: String): String? = headers[key.toUpperCase()]
 
     override fun getCookies(): Map<String, String> = HttpRequestParser(headers["COOKIE"]!!).cookie()
 

@@ -137,9 +137,13 @@ class ServerWebConfiguration(
     @ConditionalOnMissingBean(ModelAttributeMapper::class)
     fun modelAttributeMapper(): ModelAttributeMapper = ModelAttributeMapper()
 
+//    @Bean
+//    @ConditionalOnMissingBean(NettyMultipartFileMapper::class)
+//    fun nettyMultipartFileMapper(): NettyMultipartFileMapper = NettyMultipartFileMapper()
+
     @Bean
-    @ConditionalOnMissingBean(NettyMultipartFileMapper::class)
-    fun nettyMultipartFileMapper(): NettyMultipartFileMapper = NettyMultipartFileMapper()
+    @ConditionalOnMissingBean(DefaultMultipartFileMapper::class)
+    fun defaultMultipartFileMapper(): DefaultMultipartFileMapper = DefaultMultipartFileMapper()
 
     @Bean
     @ConditionalOnMissingBean(NettyMultipartObjectMapper::class)
