@@ -4,14 +4,12 @@ package io.zensoft.hootka.api.internal.server.nio.threads
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpResponse
-import io.zensoft.hootka.api.internal.mapper.DefaultMultipartFileMapper
 import io.zensoft.hootka.api.internal.server.nio.http.DefaultHttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestChunkCollector
-import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestParser
+import io.zensoft.hootka.api.internal.server.nio.http.cookie.DefaultCookieCodec
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.channels.*
-import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 
@@ -64,7 +62,7 @@ class DefaultWorker(
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
                             println()
-                            response(channel, wrappedResponse)
+                            responseBuilder(channel, wrappedResponse)
                         }
                     }
                 }
@@ -76,11 +74,17 @@ class DefaultWorker(
         running = false
     }
 
-    private fun response(channel: SocketChannel, responsee: WrappedHttpResponse) {
-        val content = String(responsee.getContent()!!)
-        val response = arrayOf("HTTP/1.1 200 OK",
-                "Content-Type: text/plain",
+    private fun responseBuilder(channel: SocketChannel, wrappedResponse: WrappedHttpResponse) {
+        val content = String(wrappedResponse.getContent()!!)
+        val response = arrayOf(
+                "HTTP/1.1 ${wrappedResponse.getHttpStatus().value}",
+                "Date: ",
+                "Server: ",
+                "Last-Modified: ",
                 "Content-Length: ${content.length}",
+                "Content-Type: ${wrappedResponse.getContentType().value}",
+                DefaultCookieCodec().encode(wrappedResponse.getCookies()), //Set-cookie
+                "Connection: ",
                 "",
                 content).joinToString("\r\n").toByteArray()
         channel.write(ByteBuffer.wrap(response))

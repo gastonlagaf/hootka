@@ -25,10 +25,10 @@ class DefaultMultipartFileMapper : HttpRequestMapper {
         val annotation = parameter.annotation!! as MultipartFile
 
         val boundary = HttpRequestParser(context.request.getHeader("CONTENT-TYPE")!!).boundary()
-        val filesList = multipartContent.split("--" + boundary).filter { !it.isBlank() && !it.equals("--\r\n") }
+        val filesList = multipartContent.split(boundary).filter { !it.isBlank() && it != "--\r\n" }
         val files = mutableListOf<InMemoryFile>()
         filesList.forEach {
-            val file = HttpRequestParser(it).content()
+            val file = HttpRequestParser(it).multipartFile()
             val extension = extractExtension(file.name)
             if (annotation.acceptExtensions.isNotEmpty() && !annotation.acceptExtensions.contains(extension)) {
                 throw IllegalArgumentException("Unsupported file type with extension $extension")

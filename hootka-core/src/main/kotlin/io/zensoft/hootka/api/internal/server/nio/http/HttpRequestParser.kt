@@ -69,15 +69,11 @@ class HttpRequestParser(
     }
 
     fun boundary(): String {
-        readParams(SEPARATOR)
-        skip(1)
         readParams(EQ)
-        val boundary = readParams(NEW_LINE)
-
-        return boundary
+        return "--".plus(readParams(NEW_LINE))
     }
 
-    fun content(): InMemoryFile {
+    fun multipartFile(): InMemoryFile {
         position = CaretPosition.CONTENT_DISPOSITION
         val fileData = mutableMapOf<String, String>()
         readUntil()
@@ -88,17 +84,42 @@ class HttpRequestParser(
             val value = readContent(SEPARATOR).trim('"')
             fileData[name.toUpperCase()] = value.trim()
         }
-        readUntil(COLON)
-        readUntil()
-        val file = string.substring(caret)
+        readContent(COLON)
+        if (CaretPosition.CONTENT_TYPE == position) {
+            readUntil()
+            skip(2)
+        }
+        val file = string.substring(caret).removeSuffix("\r\n\r\n")
         return InMemoryFile(fileData["FILENAME"]!!, ByteArrayInputStream(file.toByteArray()))
+    }
+
+    fun multipartObject(): Pair<String?, Any?> {
+        position = CaretPosition.CONTENT_DISPOSITION
+        val fileData = mutableMapOf<String, String>()
+        readUntil()
+        readUntil(COLON)
+        readUntil(SEPARATOR)
+        while (CaretPosition.CONTENT_DISPOSITION == position) {
+            val name = readContent(EQ).trim()
+            val value = readContent(SEPARATOR).trim('"')
+            fileData[name.toUpperCase()] = value.trim()
+        }
+        readContent(COLON)
+        if (CaretPosition.CONTENT_TYPE == position) {
+            readUntil()
+            skip(2)
+            val file = string.substring(caret).removeSuffix("\r\n\r\n")
+            return Pair(fileData["NAME"], InMemoryFile(fileData["FILENAME"]!!, ByteArrayInputStream(file.toByteArray())))
+        }
+        val text = string.substring(caret).removeSuffix("\r\n")
+        return Pair(fileData["NAME"], text)
     }
 
     fun headersAvailable(): Boolean {
         return CaretPosition.HEADERS == position
     }
 
-    fun readUntil(char: Char = NEW_LINE): String {
+     fun readUntil(char: Char = NEW_LINE): String {
         val result = StringBuilder()
         var c = string[caret]
         while (c != char && c != NEW_LINE && !contentRead()) {
@@ -113,7 +134,7 @@ class HttpRequestParser(
         return result.toString()
     }
 
-    fun readPath(char: Char): String {
+    private fun readPath(char: Char): String {
         val result = StringBuilder()
         var c = string[caret]
         while (c != char && c != SPACE) {
@@ -128,7 +149,7 @@ class HttpRequestParser(
         return result.toString()
     }
 
-    fun readParams(char: Char): String {
+    private fun readParams(char: Char): String {
         val result = StringBuilder()
         var c = string[caret]
         while (c != char && c != NEW_LINE && !contentRead()) {
@@ -142,18 +163,19 @@ class HttpRequestParser(
         return result.toString()
     }
 
-    fun readContent(char: Char = NEW_LINE): String {
+    private fun readContent(char: Char = NEW_LINE): String {
         val result = StringBuilder()
         var c = string[caret]
         while (c != char && c != NEW_LINE && !contentRead()) {
             result.append(c)
             c = string[++caret]
         }
-        if (char == NEW_LINE) {
-            skip(2)
-        }
         if (char == SEPARATOR && c == NEW_LINE) {
             position = CaretPosition.CONTENT_TYPE
+            skip(1)
+        }
+        if (char == COLON && c == NEW_LINE) {
+            position = CaretPosition.BODY
             skip(2)
         } else {
             skip(1)
