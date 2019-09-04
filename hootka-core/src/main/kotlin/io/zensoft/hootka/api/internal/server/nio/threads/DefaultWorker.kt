@@ -61,7 +61,6 @@ class DefaultWorker(
                             val wrappedRequest = collector.aggregate(address)
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
-                            println()
                             responseBuilder(channel, wrappedResponse)
                         }
                     }
@@ -83,7 +82,7 @@ class DefaultWorker(
                 "Last-Modified: ",
                 "Content-Length: ${content.length}",
                 "Content-Type: ${wrappedResponse.getContentType().value}",
-                DefaultCookieCodec().encode(wrappedResponse.getCookies()), //Set-cookie
+                //DefaultCookieCodec().encode(wrappedResponse.getCookies()), //Set-cookie
                 "Connection: ",
                 "",
                 content).joinToString("\r\n").toByteArray()
@@ -97,7 +96,7 @@ class DefaultWorker(
         channel.setOption(StandardSocketOptions.TCP_NODELAY, true)
         channel.setOption(StandardSocketOptions.SO_SNDBUF, 256)
         val key = channel.register(selector, SelectionKey.OP_READ)
-        key.attach(DefaultHttpRequestChunkCollector(10485760))
+        key.attach(DefaultHttpRequestChunkCollector(2048))
     }
 
 }
