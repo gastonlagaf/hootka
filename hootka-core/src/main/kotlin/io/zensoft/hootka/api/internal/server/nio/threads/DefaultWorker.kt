@@ -61,7 +61,7 @@ class DefaultWorker(
                             val wrappedRequest = collector.aggregate(address)
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
-                            responseBuilder(channel, wrappedResponse)
+                            channel.write(ByteBuffer.wrap(responseBuilder(wrappedResponse)))
                         }
                     }
                 }
@@ -73,20 +73,23 @@ class DefaultWorker(
         running = false
     }
 
-    private fun responseBuilder(channel: SocketChannel, wrappedResponse: WrappedHttpResponse) {
-        val content = String(wrappedResponse.getContent()!!)
-        val response = arrayOf(
-                "HTTP/1.1 ${wrappedResponse.getHttpStatus().value}",
-                "Date: ",
-                "Server: ",
-                "Last-Modified: ",
-                "Content-Length: ${content.length}",
-                "Content-Type: ${wrappedResponse.getContentType().value}",
-                //DefaultCookieCodec().encode(wrappedResponse.getCookies()), //Set-cookie
-                "Connection: ",
-                "",
-                content).joinToString("\r\n").toByteArray()
-        channel.write(ByteBuffer.wrap(response))
+    private fun responseBuilder(wrappedResponse: WrappedHttpResponse): ByteArray? {
+        val content = wrappedResponse.getContent()
+        val result = mutableListOf<String>()
+        result.add("HTTP/1.1 ${wrappedResponse.getHttpStatus().value}")
+        result.add("Date: ")
+        result.add("Server: ")
+        result.add("Last-Modified: ")
+        result.add("Content-Length: ${content!!.size}")
+        result.add("Content-Type: ${wrappedResponse.getContentType().value}")
+        val cookie = wrappedResponse.getCookies()
+        if (cookie.isNotEmpty()) {
+            result.add(DefaultCookieCodec().encode(cookie))
+        }
+        result.add("Connection: ")
+        result.add("")
+        result.add(String(content))
+        return result.joinToString("\r\n").toByteArray()
     }
 
     private fun registerAccepted() {
@@ -96,7 +99,7 @@ class DefaultWorker(
         channel.setOption(StandardSocketOptions.TCP_NODELAY, true)
         channel.setOption(StandardSocketOptions.SO_SNDBUF, 256)
         val key = channel.register(selector, SelectionKey.OP_READ)
-        key.attach(DefaultHttpRequestChunkCollector(2048))
+        key.attach(DefaultHttpRequestChunkCollector(163840))
     }
 
 }
