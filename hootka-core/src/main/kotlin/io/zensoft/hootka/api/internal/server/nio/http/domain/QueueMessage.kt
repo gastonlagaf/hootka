@@ -38,6 +38,7 @@ class QueueMessage(
             }
             messageList.remove(mes)
         }
+        size = 0
         return message
     }
 
