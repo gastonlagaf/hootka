@@ -99,7 +99,7 @@ class DefaultWorker(
         channel.setOption(StandardSocketOptions.TCP_NODELAY, true)
         channel.setOption(StandardSocketOptions.SO_SNDBUF, 256)
         val key = channel.register(selector, SelectionKey.OP_READ)
-        key.attach(DefaultHttpRequestChunkCollector(163840))
+        key.attach(DefaultHttpRequestChunkCollector(256))
     }
 
 }
