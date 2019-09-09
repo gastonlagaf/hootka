@@ -80,7 +80,9 @@ class DefaultWorker(
         result.add("Date: ")
         result.add("Server: ")
         result.add("Last-Modified: ")
-        result.add("Content-Length: ${content!!.size}")
+        if (null != content) {
+            result.add("Content-Length: ${content.size}")
+        }
         result.add("Content-Type: ${wrappedResponse.getContentType().value}")
         val cookie = wrappedResponse.getCookies()
         if (cookie.isNotEmpty()) {
@@ -88,7 +90,9 @@ class DefaultWorker(
         }
         result.add("Connection: ")
         result.add("")
-        result.add(String(content))
+        if (null != content) {
+            result.add(String(content))
+        }
         return result.joinToString("\r\n").toByteArray()
     }
 

@@ -23,6 +23,11 @@ class SampleController(
         return "Hello World"
     }
 
+    @RequestMapping(method = HttpMethod.GET, value = ["/redirect"])
+    fun redirect(): String {
+        return "redirect:/status"
+    }
+
     @Stateless
     @RequestMapping(method = HttpMethod.GET, value = ["/api/greet"], produces = MimeType.TEXT_PLAIN)
     fun greet(@RequestParam name: String?): String {
