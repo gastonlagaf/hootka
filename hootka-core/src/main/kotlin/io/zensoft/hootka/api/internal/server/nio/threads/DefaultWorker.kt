@@ -7,6 +7,7 @@ import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpResponse
 import io.zensoft.hootka.api.internal.server.nio.http.DefaultHttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.cookie.DefaultCookieCodec
+import io.zensoft.hootka.api.model.HttpStatus
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.channels.*
@@ -77,21 +78,27 @@ class DefaultWorker(
         val content = wrappedResponse.getContent()
         val result = mutableListOf<String>()
         result.add("HTTP/1.1 ${wrappedResponse.getHttpStatus().value}")
-        result.add("Date: ")
-        result.add("Server: ")
-        result.add("Last-Modified: ")
-        if (null != content) {
-            result.add("Content-Length: ${content.size}")
-        }
+        if (HttpStatus.FOUND == wrappedResponse.getHttpStatus()) {
+            result.add("Location: ${wrappedResponse.getHeader("location")}\r\n\r\n")
+        } else {
+            result.add("Date: ")
+            result.add("Server: ")
+            result.add("Last-Modified: ")
+            if (null != content) {
+                result.add("Content-Length: ${content.size}")
+            }
         result.add("Content-Type: ${wrappedResponse.getContentType().value}")
-        val cookie = wrappedResponse.getCookies()
-        if (cookie.isNotEmpty()) {
-            result.add(DefaultCookieCodec().encode(cookie))
-        }
-        result.add("Connection: ")
-        result.add("")
-        if (null != content) {
-            result.add(String(content))
+            val cookie = wrappedResponse.getCookies()
+            if (cookie.isNotEmpty()) {
+                result.add(DefaultCookieCodec().encode(cookie))
+            }
+            result.add("Connection: keep-alive")
+            result.add("")
+            if (null != content) {
+                result.add(String(content))
+            } else{
+                result.add("")
+            }
         }
         return result.joinToString("\r\n").toByteArray()
     }
