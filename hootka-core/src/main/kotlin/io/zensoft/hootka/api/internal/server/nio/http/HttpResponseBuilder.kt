@@ -6,6 +6,6 @@ import java.nio.ByteBuffer
 
 interface HttpResponseBuilder {
 
-    fun build(request: WrappedHttpRequest, response: WrappedHttpResponse): ByteBuffer
+    fun build(response: WrappedHttpResponse): ByteBuffer
 
 }

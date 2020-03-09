@@ -63,10 +63,8 @@ class DefaultWorker(
                             val wrappedRequest = collector.aggregate(address)
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
-                            val serializedResponse = responseBuilder.build(wrappedRequest, wrappedResponse)
+                            val serializedResponse = responseBuilder.build(wrappedResponse)
                             channel.write(serializedResponse)
-                            channel.close()
-                            key.cancel()
                         }
                     }
                 }

@@ -43,12 +43,8 @@ class HttpControllerHandler(
 
     private fun writeResponse(ctx: ChannelHandlerContext, request: FullHttpRequest?, response: NettyWrappedHttpResponse) {
         val content = response.getContent()
-        val result = if (null != content) {
-            val buf = Unpooled.wrappedBuffer(content)
-            DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response.getHttpStatus().code), buf)
-        } else {
-            DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response.getHttpStatus().code))
-        }
+        val buf = Unpooled.wrappedBuffer(content)
+        val result = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response.getHttpStatus().code), buf)
         response.getHeaders().forEach { header ->
             header.value.forEach {
                 result.headers().add(header.key, it)

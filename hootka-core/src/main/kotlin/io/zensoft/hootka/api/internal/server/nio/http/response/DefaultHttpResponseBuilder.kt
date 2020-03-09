@@ -1,6 +1,5 @@
 package io.zensoft.hootka.api.internal.server.nio.http.response
 
-import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpResponse
 import io.zensoft.hootka.api.internal.server.nio.http.HttpResponseBuilder
@@ -15,7 +14,7 @@ import java.time.format.DateTimeFormatter
 
 class DefaultHttpResponseBuilder : HttpResponseBuilder {
 
-    override fun build(request: WrappedHttpRequest, response: WrappedHttpResponse): ByteBuffer {
+    override fun build(response: WrappedHttpResponse): ByteBuffer {
         response as DefaultWrappedHttpResponse
         val headers = headers(response)
         val buffer = ByteBuffer.allocate(headers.size.plus(response.getContent().size))
