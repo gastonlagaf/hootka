@@ -1,15 +1,12 @@
 package io.zensoft.hootka.api.internal.server.nio.threads
 
 
-import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpResponse
 import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.HttpResponseBuilder
-import io.zensoft.hootka.api.internal.server.nio.http.cookie.DefaultCookieCodec
 import io.zensoft.hootka.api.internal.server.nio.http.request.DefaultHttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.response.DefaultHttpResponseBuilder
-import io.zensoft.hootka.api.model.HttpStatus
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
 import java.nio.channels.*
@@ -66,7 +63,10 @@ class DefaultWorker(
                             val wrappedRequest = collector.aggregate(address)
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
-                            channel.write(responseBuilder.build(wrappedRequest, wrappedResponse))
+                            val serializedResponse = responseBuilder.build(wrappedRequest, wrappedResponse)
+                            channel.write(serializedResponse)
+                            channel.close()
+                            key.cancel()
                         }
                     }
                 }

@@ -7,7 +7,6 @@ import io.zensoft.hootka.api.internal.invoke.MethodInvocationProducer
 import io.zensoft.hootka.api.internal.support.ExceptionHandlerKey
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.model.HttpMethod
-import io.zensoft.hootka.api.model.HttpStatus
 import io.zensoft.hootka.api.model.MimeType
 import org.springframework.context.ApplicationContext
 import javax.annotation.PostConstruct
@@ -36,7 +35,7 @@ class ExceptionHandlerProvider(
             for (function in advice::class.declaredFunctions) {
                 val annotation = function.findAnnotation<ExceptionHandler>() ?: continue
                 val parameterMapping = handlerParameterMapperProvider.mapHandlerParameters(function)
-                val status = function.findAnnotation<ResponseStatus>()?.value ?: HttpStatus.OK
+                val status = function.findAnnotation<ResponseStatus>()?.value ?: io.zensoft.hootka.api.model.HttpResponseStatus.OK
                 val methodInvocation = methodInvocationProducer.generateMethodInvocation(advice, function, parameterMapping)
                 val handlerMetaInfo = HttpHandlerMetaInfo(advice, methodInvocation, parameterMapping,
                     false, status, annotation.produces, "", HttpMethod.GET, null)

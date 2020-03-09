@@ -5,7 +5,7 @@ import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.utils.ResourceMimeTypeUtils
 import io.zensoft.hootka.api.model.HttpMethod
-import io.zensoft.hootka.api.model.HttpStatus
+import io.zensoft.hootka.api.model.HttpResponseStatus
 import org.apache.commons.io.IOUtils
 import org.springframework.context.ApplicationContext
 import org.springframework.util.AntPathMatcher
@@ -32,7 +32,7 @@ class StaticResourcesProvider(
                 val resultFile = resourceHandler.findResource(resourcePath)
                 if (resultFile != null) {
                     val responseBody = IOUtils.toByteArray(resultFile)
-                    response.mutate(HttpStatus.OK, ResourceMimeTypeUtils.resolveMimeType(resourcePath), responseBody)
+                    response.mutate(HttpResponseStatus.OK, ResourceMimeTypeUtils.resolveMimeType(resourcePath), responseBody)
                     if (resourceHandler.isCacheable()) {
                         response.setHeader(CACHE_CONTROL_HEADER, "max-age=$resourceMaxAge")
                     }

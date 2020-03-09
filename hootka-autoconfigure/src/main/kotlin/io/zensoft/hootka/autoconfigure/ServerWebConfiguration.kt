@@ -21,7 +21,7 @@ import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
 import io.zensoft.hootka.api.internal.server.HttpChannelInitializer
 import io.zensoft.hootka.api.internal.server.HttpControllerHandler
 import io.zensoft.hootka.api.internal.server.HttpServer
-import io.zensoft.hootka.api.internal.server.Server
+import io.zensoft.hootka.api.internal.server.nio.Server
 import io.zensoft.hootka.api.internal.validation.DefaultValidationProvider
 import io.zensoft.hootka.api.model.SimpleAuthenticationDetails
 import io.zensoft.hootka.autoconfigure.property.WebConfig

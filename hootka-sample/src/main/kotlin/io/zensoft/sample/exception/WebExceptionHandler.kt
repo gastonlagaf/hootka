@@ -3,15 +3,15 @@ package io.zensoft.sample.exception
 import io.zensoft.hootka.annotation.ControllerAdvice
 import io.zensoft.hootka.annotation.ExceptionHandler
 import io.zensoft.hootka.annotation.ResponseStatus
-import io.zensoft.hootka.api.model.HttpStatus
+import io.zensoft.hootka.api.model.HttpResponseStatus
 
 @ControllerAdvice
 class WebExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpResponseStatus.BAD_REQUEST)
     @ExceptionHandler(values = [IllegalArgumentException::class])
     fun handleIllegalArgument(): String {
-        return HttpStatus.BAD_REQUEST.name
+        return HttpResponseStatus.BAD_REQUEST.name
     }
 
 }

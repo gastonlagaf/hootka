@@ -30,7 +30,7 @@ object DeserializationUtils {
             val fields = getFields(beanClass)
             for (field in fields) {
                 val value = getFieldValue(field.name, field.type, queryParams) ?: continue
-                args.put(field.name, value)
+                args[field.name] = value
             }
         }
         return mapper.convertValue(args, beanClass)

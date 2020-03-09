@@ -35,7 +35,7 @@ class SampleController(
     }
 
     @Stateless
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR)
     @RequestMapping(method = HttpMethod.POST, value = ["/api/mutate/{firstName}"])
     fun mutate(@RequestBody request: UserDto, @PathVariable firstName: String): UserDto {
         return UserDto(firstName, request.lastName, request.age)

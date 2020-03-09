@@ -1,17 +1,17 @@
 package io.zensoft.hootka.api
 
 import io.netty.handler.codec.http.cookie.Cookie
-import io.zensoft.hootka.api.model.HttpStatus
 import io.zensoft.hootka.api.model.MimeType
+import io.zensoft.hootka.api.model.HttpResponseStatus
 import java.io.InputStream
 
 interface WrappedHttpResponse {
 
-    fun getHttpStatus(): HttpStatus
+    fun getHttpStatus(): HttpResponseStatus
 
     fun getContentStream(): InputStream
 
-    fun getContent(): ByteArray?
+    fun getContent(): ByteArray
 
     fun getHeader(name: String): String?
 
@@ -25,6 +25,10 @@ interface WrappedHttpResponse {
 
     fun getCookies(): List<Cookie>
 
-    fun mutate(status: HttpStatus, contentType: MimeType, content: ByteArray? = null)
+    fun mutate(status: HttpResponseStatus, contentType: MimeType, content: ByteArray? = null)
+
+    companion object {
+        val EMPTY_ARRAY: ByteArray = ByteArray(0)
+    }
 
 }

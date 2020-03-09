@@ -1,4 +1,4 @@
-package io.zensoft.hootka.api.internal.server
+package io.zensoft.hootka.api.internal.server.nio
 
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.server.nio.threads.DefaultWorkerPool

@@ -14,8 +14,8 @@ import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.DeserializationUtils
-import io.zensoft.hootka.api.model.HttpStatus
 import io.zensoft.hootka.api.model.MimeType
+import io.zensoft.hootka.api.model.HttpResponseStatus
 import org.apache.commons.lang3.StringUtils
 import java.lang.reflect.InvocationTargetException
 
@@ -83,19 +83,19 @@ class BaseRequestProcessor(
                     val responseBody = responseResolverProvider.createResponseBody(result!!, args, exceptionHandler.contentType, context.response)
                     context.response.mutate(exceptionHandler.status, exceptionHandler.contentType, responseBody)
                 } catch (ex: Exception) {
-                    context.response.mutate(HttpStatus.INTERNAL_SERVER_ERROR, MimeType.TEXT_PLAIN,
+                    context.response.mutate(HttpResponseStatus.INTERNAL_SERVER_ERROR, MimeType.TEXT_PLAIN,
                         (exception.message ?: StringUtils.EMPTY).toByteArray())
                 }
             }
         } else {
-            context.response.mutate(HttpStatus.INTERNAL_SERVER_ERROR, MimeType.TEXT_PLAIN,
+            context.response.mutate(HttpResponseStatus.INTERNAL_SERVER_ERROR, MimeType.TEXT_PLAIN,
                 (exception.message ?: StringUtils.EMPTY).toByteArray())
         }
     }
 
     private fun isRedirectResponse(response: WrappedHttpResponse, result: Any?, handler: HttpHandlerMetaInfo): Boolean {
         if (result is String && result.startsWith(REDIRECT_PREFIX)) {
-            response.mutate(HttpStatus.FOUND, handler.contentType)
+            response.mutate(HttpResponseStatus.FOUND, handler.contentType)
             val pathIdx = result.indexOf(REDIRECT_PREFIX) + REDIRECT_PREFIX.count()
             response.setHeader(HttpHeaderNames.LOCATION.toString(), AsciiString(result.substring(pathIdx)).toString())
             return true
