@@ -4,7 +4,7 @@ import io.zensoft.hootka.api.HttpResponseResolver
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.model.MimeType
 
-class PlainTextResponseResolver: HttpResponseResolver {
+class PlainTextResponseResolver : HttpResponseResolver {
 
     override fun getContentType(): MimeType = MimeType.TEXT_PLAIN
 

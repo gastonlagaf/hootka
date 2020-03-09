@@ -7,7 +7,7 @@ import javax.tools.SimpleJavaFileObject
 class StringJavaFileObject(
     className: String,
     private val source: String
-): SimpleJavaFileObject(
+) : SimpleJavaFileObject(
     URI.create("string:///" + className.replace('.', '/') + JavaFileObject.Kind.SOURCE.extension),
     JavaFileObject.Kind.SOURCE
 ) {

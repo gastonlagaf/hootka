@@ -1,7 +1,6 @@
 package io.zensoft.hootka.api.internal.server.nio.http
 
 import io.zensoft.hootka.api.WrappedHttpRequest
-import io.zensoft.hootka.api.internal.server.nio.http.domain.RawHttpRequest
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 

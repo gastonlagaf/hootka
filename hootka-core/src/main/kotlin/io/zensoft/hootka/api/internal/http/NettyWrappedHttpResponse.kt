@@ -11,11 +11,11 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 
 class NettyWrappedHttpResponse(
-        private var httpStatus: HttpStatus = HttpStatus.OK,
-        private var contentType: MimeType = MimeType.APPLICATION_JSON,
-        private var content: ByteArray? = null,
-        private val headers: HttpHeaders = DefaultHttpHeaders(),
-        private val cookies: MutableList<Cookie> = mutableListOf()
+    private var httpStatus: HttpStatus = HttpStatus.OK,
+    private var contentType: MimeType = MimeType.APPLICATION_JSON,
+    private var content: ByteArray? = null,
+    private val headers: HttpHeaders = DefaultHttpHeaders(),
+    private val cookies: MutableList<Cookie> = mutableListOf()
 ) : WrappedHttpResponse {
 
     override fun getContent(): ByteArray? {

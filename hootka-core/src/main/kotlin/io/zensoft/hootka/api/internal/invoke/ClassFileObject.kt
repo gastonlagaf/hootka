@@ -10,7 +10,7 @@ class ClassFileObject(
     private val className: String,
     kind: JavaFileObject.Kind,
     private val outputStream: ByteArrayOutputStream = ByteArrayOutputStream()
-): SimpleJavaFileObject(
+) : SimpleJavaFileObject(
     URI.create("mem:///" + className.replace('.', '/') + kind.extension),
     kind
 ) {

@@ -4,7 +4,7 @@ import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.model.HttpStatus.*
 
 class HttpResponse(
-        private val wrappedResponse: WrappedHttpResponse
+    private val wrappedResponse: WrappedHttpResponse
 ) {
     private val result = mutableListOf<String>()
     private val content = wrappedResponse.getContent()

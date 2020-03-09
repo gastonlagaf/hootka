@@ -1,11 +1,11 @@
 package io.zensoft.hootka.api.internal.server.nio.http.domain
 
 class QueueMessage(
-        private val bufferCapacity: Int,
-        private val messageList: MutableList<ByteArray> = mutableListOf(),
-        private var messageBuffer: ByteArray = ByteArray(bufferCapacity),
-        private var caret: Int = 0,
-        var size: Int = 0
+    private val bufferCapacity: Int,
+    private val messageList: MutableList<ByteArray> = mutableListOf(),
+    private var messageBuffer: ByteArray = ByteArray(bufferCapacity),
+    private var caret: Int = 0,
+    var size: Int = 0
 ) {
 
     fun put(byte: Byte) {

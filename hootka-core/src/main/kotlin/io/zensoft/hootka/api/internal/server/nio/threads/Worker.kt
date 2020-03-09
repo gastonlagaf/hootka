@@ -2,7 +2,7 @@ package io.zensoft.hootka.api.internal.server.nio.threads
 
 import java.nio.channels.SelectableChannel
 
-interface Worker: Runnable {
+interface Worker : Runnable {
 
     fun initialize()
 

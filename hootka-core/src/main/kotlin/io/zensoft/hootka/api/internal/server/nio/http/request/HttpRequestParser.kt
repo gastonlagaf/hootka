@@ -1,17 +1,17 @@
-package io.zensoft.hootka.api.internal.server.nio.http
-
+package io.zensoft.hootka.api.internal.server.nio.http.request
 
 import io.zensoft.hootka.api.internal.server.nio.http.domain.RawHttpRequest
+import io.zensoft.hootka.api.internal.server.nio.http.request.CaretPosition.*
 import io.zensoft.hootka.api.model.HttpMethod
 import io.zensoft.hootka.api.model.InMemoryFile
 import java.io.ByteArrayInputStream
 
 class HttpRequestParser(
-        private val string: String
+    private val string: String
 ) {
 
     private var caret: Int = 0
-    private var position: CaretPosition = CaretPosition.REQUEST_PATH
+    private var position: CaretPosition = REQUEST_PATH
     private var emptyParams: Boolean = false
 
 
@@ -24,7 +24,7 @@ class HttpRequestParser(
         }
 
         readUntil()
-        position = CaretPosition.HEADERS
+        position = HEADERS
         request.apply {
             this.method = HttpMethod.valueOf(method.toUpperCase())
             this.params = parameters
@@ -36,7 +36,7 @@ class HttpRequestParser(
         val headerName = readUntil(COLON)
         if (headerName.isEmpty()) {
             skip(1)
-            position = CaretPosition.BODY
+            position = BODY
             return Pair("", "")
         }
         val headerValue = readUntil()
@@ -74,18 +74,18 @@ class HttpRequestParser(
     }
 
     fun multipartFile(): InMemoryFile {
-        position = CaretPosition.CONTENT_DISPOSITION
+        position = CONTENT_DISPOSITION
         val fileData = mutableMapOf<String, String>()
         readUntil()
         readUntil(COLON)
         readUntil(SEPARATOR)
-        while (CaretPosition.CONTENT_DISPOSITION == position) {
+        while (CONTENT_DISPOSITION == position) {
             val name = readContent(EQ).trim()
             val value = readContent(SEPARATOR).trim('"')
             fileData[name.toUpperCase()] = value.trim()
         }
         readContent(COLON)
-        if (CaretPosition.CONTENT_TYPE == position) {
+        if (CONTENT_TYPE == position) {
             readUntil()
             skip(2)
         }
@@ -94,18 +94,18 @@ class HttpRequestParser(
     }
 
     fun multipartObject(): Pair<String?, Any?> {
-        position = CaretPosition.CONTENT_DISPOSITION
+        position = CONTENT_DISPOSITION
         val fileData = mutableMapOf<String, String>()
         readUntil()
         readUntil(COLON)
         readUntil(SEPARATOR)
-        while (CaretPosition.CONTENT_DISPOSITION == position) {
+        while (CONTENT_DISPOSITION == position) {
             val name = readContent(EQ).trim()
             val value = readContent(SEPARATOR).trim('"')
             fileData[name.toUpperCase()] = value.trim()
         }
         readContent(COLON)
-        if (CaretPosition.CONTENT_TYPE == position) {
+        if (CONTENT_TYPE == position) {
             readUntil()
             skip(2)
             val file = string.substring(caret).removeSuffix("\r\n\r\n")
@@ -116,10 +116,10 @@ class HttpRequestParser(
     }
 
     fun headersAvailable(): Boolean {
-        return CaretPosition.HEADERS == position
+        return HEADERS == position
     }
 
-     fun readUntil(char: Char = NEW_LINE): String {
+    fun readUntil(char: Char = NEW_LINE): String {
         val result = StringBuilder()
         var c = string[caret]
         while (c != char && c != NEW_LINE && !contentRead()) {
@@ -171,11 +171,11 @@ class HttpRequestParser(
             c = string[++caret]
         }
         if (char == SEPARATOR && c == NEW_LINE) {
-            position = CaretPosition.CONTENT_TYPE
+            position = CONTENT_TYPE
             skip(1)
         }
         if (char == COLON && c == NEW_LINE) {
-            position = CaretPosition.BODY
+            position = BODY
             skip(2)
         } else {
             skip(1)
@@ -201,13 +201,4 @@ class HttpRequestParser(
         private const val EQ = '='
     }
 
-}
-
-enum class CaretPosition {
-    REQUEST_PATH,
-    HEADERS,
-    BODY,
-    CONTENT_DISPOSITION,
-    CONTENT_TYPE,
-    END
 }

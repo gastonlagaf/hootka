@@ -4,7 +4,6 @@ import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelOption
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.ServerChannel
-import io.netty.channel.WriteBufferWaterMark
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollChannelOption
 import io.netty.channel.epoll.EpollEventLoopGroup

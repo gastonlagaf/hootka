@@ -1,20 +1,20 @@
-package io.zensoft.hootka.api.internal.server.nio.http
+package io.zensoft.hootka.api.internal.server.nio.http.request
 
 import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpRequest
+import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.domain.QueueMessage
 import io.zensoft.hootka.api.internal.server.nio.http.domain.RawHttpRequest
-import java.io.ByteArrayOutputStream
 import java.net.SocketAddress
 import java.nio.ByteBuffer
 
 class DefaultHttpRequestChunkCollector(
-        private val bufferCapacity: Int,
-        private val header: QueueMessage = QueueMessage(bufferCapacity),
-        private var body: QueueMessage = QueueMessage(bufferCapacity),
-        private val bodyDelimiterPosition: MutableList<Int> = mutableListOf(),
-        private var headersCollected: Boolean = false,
-        private var request: RawHttpRequest = RawHttpRequest()
+    private val bufferCapacity: Int,
+    private val header: QueueMessage = QueueMessage(bufferCapacity),
+    private var body: QueueMessage = QueueMessage(bufferCapacity),
+    private val bodyDelimiterPosition: MutableList<Int> = mutableListOf(),
+    private var headersCollected: Boolean = false,
+    private var request: RawHttpRequest = RawHttpRequest()
 ) : HttpRequestChunkCollector {
 
     override fun collect(chunk: ByteBuffer) {
@@ -45,7 +45,7 @@ class DefaultHttpRequestChunkCollector(
     }
 
     override fun requestRead(): Boolean {
-        return (headersCollected && request.headers?.get("CONTENT-LENGTH")?.toInt() == body.size) || (headersCollected &&"GET" == request.method?.name)
+        return (headersCollected && request.headers?.get("CONTENT-LENGTH")?.toInt() == body.size) || (headersCollected && "GET" == request.method?.name)
     }
 
     private fun controlHeadersRead(byte: Byte) {

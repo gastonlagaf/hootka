@@ -13,7 +13,7 @@ class DefaultRememberMeService(
     private val cookieMaxAge: Long,
     private val salt: String,
     private val userDetailsService: UserDetailsService
-): RememberMeService {
+) : RememberMeService {
 
     companion object {
         private const val TOKEN_PARTS_QUANTITY = 3

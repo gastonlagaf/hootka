@@ -4,9 +4,11 @@ package io.zensoft.hootka.api.internal.server.nio.threads
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.DefaultWrappedHttpResponse
-import io.zensoft.hootka.api.internal.server.nio.http.DefaultHttpRequestChunkCollector
 import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestChunkCollector
+import io.zensoft.hootka.api.internal.server.nio.http.HttpResponseBuilder
 import io.zensoft.hootka.api.internal.server.nio.http.cookie.DefaultCookieCodec
+import io.zensoft.hootka.api.internal.server.nio.http.request.DefaultHttpRequestChunkCollector
+import io.zensoft.hootka.api.internal.server.nio.http.response.DefaultHttpResponseBuilder
 import io.zensoft.hootka.api.model.HttpStatus
 import java.net.StandardSocketOptions
 import java.nio.ByteBuffer
@@ -15,14 +17,16 @@ import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 
 class DefaultWorker(
-        bufferSize: Int,
-        private val requestProcessor: BaseRequestProcessor
+    bufferSize: Int,
+    private val requestProcessor: BaseRequestProcessor
 ) : Thread(), Worker {
 
     @Volatile
     private var running: Boolean = true
 
     private val buffer: ByteBuffer = ByteBuffer.allocate(bufferSize)
+
+    private val responseBuilder: HttpResponseBuilder = DefaultHttpResponseBuilder()
 
     private val selector: Selector = Selector.open()
     private val pendingAcceptQueue: Queue<SocketChannel> = ArrayBlockingQueue(1000) // TODO: configure
@@ -62,7 +66,7 @@ class DefaultWorker(
                             val wrappedRequest = collector.aggregate(address)
                             val wrappedResponse = DefaultWrappedHttpResponse()
                             requestProcessor.processRequest(wrappedRequest, wrappedResponse)
-                            channel.write(ByteBuffer.wrap(responseBuilder(wrappedResponse)))
+                            channel.write(responseBuilder.build(wrappedRequest, wrappedResponse))
                         }
                     }
                 }
@@ -72,35 +76,6 @@ class DefaultWorker(
 
     override fun shutdown() {
         running = false
-    }
-
-    private fun responseBuilder(wrappedResponse: WrappedHttpResponse): ByteArray? {
-        val content = wrappedResponse.getContent()
-        val result = mutableListOf<String>()
-        result.add("HTTP/1.1 ${wrappedResponse.getHttpStatus().value}")
-        if (HttpStatus.FOUND == wrappedResponse.getHttpStatus()) {
-            result.add("Location: ${wrappedResponse.getHeader("location")}\r\n\r\n")
-        } else {
-            result.add("Date: ")
-            result.add("Server: ")
-            result.add("Last-Modified: ")
-            if (null != content) {
-                result.add("Content-Length: ${content.size}")
-            }
-        result.add("Content-Type: ${wrappedResponse.getContentType().value}")
-            val cookie = wrappedResponse.getCookies()
-            if (cookie.isNotEmpty()) {
-                result.add(DefaultCookieCodec().encode(cookie))
-            }
-            result.add("Connection: keep-alive")
-            result.add("")
-            if (null != content) {
-                result.add(String(content))
-            } else{
-                result.add("")
-            }
-        }
-        return result.joinToString("\r\n").toByteArray()
     }
 
     private fun registerAccepted() {

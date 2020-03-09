@@ -5,7 +5,7 @@ import io.zensoft.hootka.api.HttpSession
 class DefaultHttpSession(
     private val id: String,
     private val attributes: MutableMap<String, Any> = HashMap()
-) : HttpSession{
+) : HttpSession {
 
     override fun getId(): String {
         return id

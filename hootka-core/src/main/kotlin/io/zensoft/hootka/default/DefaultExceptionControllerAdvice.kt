@@ -1,6 +1,5 @@
 package io.zensoft.hootka.default
 
-import io.zensoft.hootka.annotation.ControllerAdvice
 import io.zensoft.hootka.annotation.ExceptionHandler
 import io.zensoft.hootka.annotation.ResponseStatus
 import io.zensoft.hootka.api.HttpSession

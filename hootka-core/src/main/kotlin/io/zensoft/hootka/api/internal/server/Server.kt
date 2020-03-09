@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 
 @Component
 class Server(
-        requestProcessor: BaseRequestProcessor
+    requestProcessor: BaseRequestProcessor
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val selector = Selector.open()

@@ -1,7 +1,7 @@
 package io.zensoft.hootka.api.internal.server.nio.http.cookie
 
 import io.netty.handler.codec.http.cookie.Cookie
-import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestParser
+import io.zensoft.hootka.api.internal.server.nio.http.request.HttpRequestParser
 
 class DefaultCookieCodec : CookieCodec {
 

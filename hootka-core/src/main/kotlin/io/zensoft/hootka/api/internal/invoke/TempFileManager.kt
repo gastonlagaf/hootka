@@ -4,7 +4,7 @@ import javax.tools.*
 
 class TempFileManager(
     fileManager: StandardJavaFileManager
-): ForwardingJavaFileManager<StandardJavaFileManager>(fileManager) {
+) : ForwardingJavaFileManager<StandardJavaFileManager>(fileManager) {
 
     private val output: MutableList<ClassFileObject> = mutableListOf()
 

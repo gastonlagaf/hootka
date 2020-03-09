@@ -3,7 +3,7 @@ package io.zensoft.hootka.api.internal.invoke
 class MethodInvocationsClassLoader(
     fileManager: TempFileManager,
     private val classObjects: List<ClassFileObject> = fileManager.getOutput()
-): ClassLoader() {
+) : ClassLoader() {
 
     override fun findClass(name: String): Class<*> {
         val classObject = classObjects.find { name == it.getClassName() }

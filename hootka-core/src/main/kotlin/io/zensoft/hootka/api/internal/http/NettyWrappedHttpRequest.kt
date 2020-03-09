@@ -11,13 +11,13 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 class NettyWrappedHttpRequest(
-        private val wrappedRequest: FullHttpRequest,
-        private val path: String,
-        private val method: HttpMethod,
-        private val uriQueryParameters: Map<String, List<String>>,
-        private val remoteAddress: String,
-        private var headers: Map<String, String>? = null,
-        private var cookies: Map<String, String>? = null
+    private val wrappedRequest: FullHttpRequest,
+    private val path: String,
+    private val method: HttpMethod,
+    private val uriQueryParameters: Map<String, List<String>>,
+    private val remoteAddress: String,
+    private var headers: Map<String, String>? = null,
+    private var cookies: Map<String, String>? = null
 ) : WrappedHttpRequest {
 
     companion object {
@@ -25,10 +25,10 @@ class NettyWrappedHttpRequest(
         fun create(request: FullHttpRequest, remoteAddress: String): NettyWrappedHttpRequest {
             val pathDecoder = QueryStringDecoder(request.uri())
             return NettyWrappedHttpRequest(request,
-                    pathDecoder.path(),
-                    HttpMethod.valueOf(request.method().name()),
-                    pathDecoder.parameters(),
-                    remoteAddress)
+                pathDecoder.path(),
+                HttpMethod.valueOf(request.method().name()),
+                pathDecoder.parameters(),
+                remoteAddress)
         }
 
     }

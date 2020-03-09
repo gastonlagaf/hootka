@@ -14,15 +14,15 @@ import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaType
 
 class HandlerParameterMapperProvider(
-        private val context: ApplicationContext,
-        private val validationService: ValidationProvider
+    private val context: ApplicationContext,
+    private val validationService: ValidationProvider
 ) {
 
     private lateinit var mappers: Map<String, HttpRequestMapper>
 
     fun createParameterValue(parameter: HandlerMethodParameter, context: RequestContext, handlerMethod: HttpHandlerMetaInfo): Any? {
         val mapper = mappers[parameter.annotation!!.annotationClass.simpleName]
-                ?: throw IllegalArgumentException("Unknown annotation type to map handler parameter. Annotation: ${parameter.annotation}")
+            ?: throw IllegalArgumentException("Unknown annotation type to map handler parameter. Annotation: ${parameter.annotation}")
 
         val argument = try {
             mapper.createValue(parameter, context, handlerMethod)
@@ -39,8 +39,8 @@ class HandlerParameterMapperProvider(
     private fun mapHandlerParameter(parameter: KParameter): HandlerMethodParameter {
         val annotations = parameter.annotations
         mappers.values
-                .filter { it.supportsAnnotation(annotations) }
-                .forEach { return it.mapParameter(parameter, annotations) }
+            .filter { it.supportsAnnotation(annotations) }
+            .forEach { return it.mapParameter(parameter, annotations) }
         throw IllegalArgumentException("Unknown annotated parameter: ${parameter.name}")
     }
 
@@ -49,7 +49,7 @@ class HandlerParameterMapperProvider(
         for (parameter in function.valueParameters) {
             if (parameter.annotations.isEmpty()) {
                 parameters.add(HandlerMethodParameter(parameter.name!!, parameter.type.javaType as Class<*>,
-                        parameter.type.isMarkedNullable))
+                    parameter.type.isMarkedNullable))
             } else {
                 parameters.add(mapHandlerParameter(parameter))
             }
@@ -60,7 +60,7 @@ class HandlerParameterMapperProvider(
     @PostConstruct
     private fun init() {
         mappers = context.getBeansOfType(HttpRequestMapper::class.java)
-                .values.associate { it.getSupportedAnnotation().simpleName!! to it }
+            .values.associate { it.getSupportedAnnotation().simpleName!! to it }
     }
 
 }

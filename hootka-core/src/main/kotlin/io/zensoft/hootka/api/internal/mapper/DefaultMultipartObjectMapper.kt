@@ -1,9 +1,8 @@
 package io.zensoft.hootka.api.internal.mapper
 
-import io.zensoft.hootka.annotation.MultipartFile
 import io.zensoft.hootka.annotation.MultipartObject
 import io.zensoft.hootka.api.HttpRequestMapper
-import io.zensoft.hootka.api.internal.server.nio.http.HttpRequestParser
+import io.zensoft.hootka.api.internal.server.nio.http.request.HttpRequestParser
 import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.internal.support.RequestContext
@@ -53,7 +52,7 @@ class DefaultMultipartObjectMapper : HttpRequestMapper {
         val annotation = annotations.find { it is MultipartObject }
         val validationRequired = annotations.find { it is Valid } != null
         return HandlerMethodParameter(parameter.name!!, parameter.type.javaType as Class<*>,
-                parameter.type.isMarkedNullable, annotation, validationRequired)
+            parameter.type.isMarkedNullable, annotation, validationRequired)
     }
 
     private fun extractExtension(fileName: String): String = fileName.substring(fileName.lastIndexOf('.') + 1)
