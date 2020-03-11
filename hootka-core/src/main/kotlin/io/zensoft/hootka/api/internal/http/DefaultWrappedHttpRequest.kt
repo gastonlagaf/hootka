@@ -3,6 +3,7 @@ package io.zensoft.hootka.api.internal.http
 import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.internal.server.nio.http.domain.RawHttpRequest
 import io.zensoft.hootka.api.internal.server.nio.http.request.HttpRequestParser
+import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.model.HttpMethod
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -17,6 +18,7 @@ class DefaultWrappedHttpRequest(
     private val headers: Map<String, String>,
     private val address: SocketAddress?
 ) : WrappedHttpRequest {
+
     constructor(rawRequest: RawHttpRequest) : this(
         rawRequest.path!!,
         rawRequest.method!!,
@@ -44,7 +46,8 @@ class DefaultWrappedHttpRequest(
 
     override fun getHeader(key: String): String? = headers[key.toUpperCase()]
 
-    override fun getCookies(): Map<String, String> = HttpRequestParser(headers["COOKIE"]!!).cookie()
+    override fun getCookies(): Map<String, String> = headers[HttpHeaderTitles.cookie.uppercasedValue]
+        ?.let { HttpRequestParser(it).cookie() } ?: emptyMap()
 
     override fun getWrappedRequest(): Any = throw Exception()
 

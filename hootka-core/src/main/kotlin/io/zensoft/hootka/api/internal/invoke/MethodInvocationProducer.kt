@@ -8,44 +8,17 @@ import kotlin.reflect.jvm.javaType
 
 class MethodInvocationProducer {
 
-    companion object {
-        private val classNameTemplate = "io.zensoft.hootka.generated.%s"
-
-        private val sourceTemplate = """
-            package io.zensoft.hootka.generated;
-
-            import io.zensoft.hootka.api.internal.invoke.MethodInvocation;
-            %s
-
-            public class %s implements MethodInvocation {
-
-                private %s bean;
-
-                public %s(%s bean) {
-                    this.bean = bean;
-                }
-
-                @Override
-                public Object invoke(Object[] args) {
-                    %s
-                }
-
-            }
-        """
-    }
-
     private val compiler = ToolProvider.getSystemJavaCompiler()
 
     fun generateMethodInvocation(bean: Any, function: KFunction<*>, parameters: List<HandlerMethodParameter>): MethodInvocation {
         val className = function.name.capitalize()
-        val fullClassName = String.format(classNameTemplate, className)
+        val fullClassName = String.format(CLASS_NAME_TEMPLATE, className)
         val source = generateSource(bean, function, parameters)
 
         val unit = StringJavaFileObject(fullClassName, source)
         val fileManager = TempFileManager(compiler.getStandardFileManager(null, null, null))
 
-        val compilationTask = compiler.getTask(null, fileManager, null, null, null,
-            Arrays.asList(unit))
+        val compilationTask = compiler.getTask(null, fileManager, null, null, null, listOf(unit))
         compilationTask.call()
 
         val classLoader = MethodInvocationsClassLoader(fileManager)
@@ -58,14 +31,15 @@ class MethodInvocationProducer {
         val beanType = bean::class.java.simpleName
         val imports = generateImports(bean, parameters)
         val implementation = implement(function, parameters)
-        return String.format(sourceTemplate, imports, className, beanType, className, beanType, implementation)
+        return String.format(SOURCE_TEMPLATE, imports, className, beanType, className, beanType, implementation)
     }
 
     private fun generateImports(bean: Any, parameters: List<HandlerMethodParameter>): String {
-        val imports = mutableSetOf("import ${bean::class.java.name};")
+        val imports = mutableSetOf<String>()
         for (param in parameters) {
             imports.add("import ${param.clazz.name};")
         }
+        imports.add("import ${bean::class.java.name};")
         return imports.joinToString("\n")
     }
 
@@ -86,6 +60,32 @@ class MethodInvocationProducer {
             result.add("return bean.${function.name}(${args.joinToString()});")
         }
         return result.joinToString("\n")
+    }
+
+    companion object {
+        private const val CLASS_NAME_TEMPLATE = "io.zensoft.hootka.generated.%s"
+
+        private const val SOURCE_TEMPLATE = """
+            package io.zensoft.hootka.generated;
+
+            import io.zensoft.hootka.api.internal.invoke.MethodInvocation;
+            %s
+
+            public class %s implements MethodInvocation {
+
+                private %s bean;
+
+                public %s(%s bean) {
+                    this.bean = bean;
+                }
+
+                @Override
+                public Object invoke(Object[] args) {
+                    %s
+                }
+
+            }
+        """
     }
 
 }

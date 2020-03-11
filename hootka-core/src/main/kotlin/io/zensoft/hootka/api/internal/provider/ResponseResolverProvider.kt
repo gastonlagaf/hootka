@@ -21,7 +21,7 @@ class ResponseResolverProvider(
     @PostConstruct
     private fun init() {
         responseResolvers = applicationContext.getBeansOfType(HttpResponseResolver::class.java)
-            .values.associate { it.getContentType().toString() to it }
+            .values.associateBy { it.getContentType().toString() }
     }
 
 }

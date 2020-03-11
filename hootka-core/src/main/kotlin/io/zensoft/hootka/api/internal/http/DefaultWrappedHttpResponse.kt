@@ -5,8 +5,8 @@ import io.netty.handler.codec.http.HttpHeaders
 import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.cookie.DefaultCookie
 import io.zensoft.hootka.api.WrappedHttpResponse
-import io.zensoft.hootka.api.model.MimeType
 import io.zensoft.hootka.api.model.HttpResponseStatus
+import io.zensoft.hootka.api.model.MimeType
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 

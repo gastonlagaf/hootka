@@ -66,10 +66,10 @@ class DefaultHttpRequestChunkCollector(
         val reader = HttpRequestParser(content)
         reader.requestPath(request)
 
-        while (reader.headersAvailable()) {
+        do {
             val header = reader.header()
             readHeaders[header.first.toUpperCase()] = header.second.trim()
-        }
+        } while (reader.headersAvailable())
         return request.apply { headers = readHeaders }
     }
 

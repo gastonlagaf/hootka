@@ -6,6 +6,7 @@ import io.zensoft.hootka.annotation.ModelAttribute
 import io.zensoft.hootka.api.HttpRequestMapper
 import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
+import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.DeserializationUtils
 import io.zensoft.hootka.api.model.HttpMethod
@@ -25,7 +26,7 @@ class ModelAttributeMapper : HttpRequestMapper {
 
     override fun createValue(parameter: HandlerMethodParameter, context: RequestContext, handlerMethod: HttpHandlerMetaInfo): Any {
         if (context.request.getMethod() == HttpMethod.POST) {
-            val contentType = context.request.getHeader("Content-Type")
+            val contentType = context.request.getHeader(HttpHeaderTitles.contentType.uppercasedValue)
             if (contentType == HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString()) {
                 val queryParams = QueryStringDecoder(context.request.getContentAsString(Charset.defaultCharset()), false).parameters()
                 return DeserializationUtils.createBeanFromQueryString(parameter.clazz, queryParams)

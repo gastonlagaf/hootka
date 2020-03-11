@@ -5,8 +5,7 @@ import io.zensoft.hootka.api.model.MimeType
 object ResourceMimeTypeUtils {
 
     fun resolveMimeType(fileName: String): MimeType {
-        val extension = fileName.substring(fileName.lastIndexOf('.') + 1)
-        return when (extension) {
+        return when (val extension = fileName.substring(fileName.lastIndexOf('.') + 1)) {
             "jpg" -> MimeType.IMAGE_JPEG
             "svg" -> MimeType.IMAGE_SVG
             "png" -> MimeType.IMAGE_PNG

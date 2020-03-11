@@ -41,39 +41,26 @@ class DefaultWorker(
 
     override fun run() {
         while (running) {
-            registerAccepted()
-            selector.select(50)
-            val keysIterator = selector.selectedKeys().iterator()
-            while (keysIterator.hasNext()) {
-                buffer.clear()
-                val key = keysIterator.next()
-                keysIterator.remove()
-                if (key.isValid && key.isReadable) {
-                    val collector = key.attachment() as HttpRequestChunkCollector
-                    val channel = key.channel() as SocketChannel
-                    val readBytes = channel.read(buffer)
-                    if (readBytes == -1) {
-                        channel.close()
-                        key.cancel()
-                        continue
-                    } else if (!collector.requestRead()) {
-                        collector.collect(buffer)
-                        if (collector.requestRead()) {
-                            val address = channel.remoteAddress
-                            val wrappedRequest = collector.aggregate(address)
-                            val wrappedResponse = DefaultWrappedHttpResponse()
-                            requestProcessor.processRequest(wrappedRequest, wrappedResponse)
-                            val serializedResponse = responseBuilder.build(wrappedResponse)
-                            channel.write(serializedResponse)
-                        }
-                    }
-                }
-            }
+            readCycle()
         }
     }
 
     override fun shutdown() {
         running = false
+    }
+
+    private fun readCycle() {
+        registerAccepted()
+        selector.select(50)
+        val keysIterator = selector.selectedKeys().iterator()
+        while (keysIterator.hasNext()) {
+            buffer.clear()
+            val key = keysIterator.next()
+            keysIterator.remove()
+            if (key.isValid && key.isReadable) {
+                read(key)
+            }
+        }
     }
 
     private fun registerAccepted() {
@@ -84,6 +71,31 @@ class DefaultWorker(
         channel.setOption(StandardSocketOptions.SO_SNDBUF, 256)
         val key = channel.register(selector, SelectionKey.OP_READ)
         key.attach(DefaultHttpRequestChunkCollector(256))
+    }
+
+    private fun read(key: SelectionKey) {
+        val channel = key.channel() as SocketChannel
+        try {
+            val collector = key.attachment() as HttpRequestChunkCollector
+            val readBytes = channel.read(buffer)
+            if (readBytes == -1) {
+                channel.close()
+                key.cancel()
+            } else if (!collector.requestRead()) {
+                collector.collect(buffer)
+                if (collector.requestRead()) {
+                    val address = channel.remoteAddress
+                    val wrappedRequest = collector.aggregate(address)
+                    val wrappedResponse = DefaultWrappedHttpResponse()
+                    requestProcessor.processRequest(wrappedRequest, wrappedResponse)
+                    val serializedResponse = responseBuilder.build(wrappedResponse)
+                    channel.write(serializedResponse)
+                }
+            }
+        } catch (ex: Exception) {
+            channel.close()
+            key.cancel()
+        }
     }
 
 }

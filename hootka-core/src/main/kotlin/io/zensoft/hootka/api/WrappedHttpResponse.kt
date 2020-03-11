@@ -1,8 +1,8 @@
 package io.zensoft.hootka.api
 
 import io.netty.handler.codec.http.cookie.Cookie
-import io.zensoft.hootka.api.model.MimeType
 import io.zensoft.hootka.api.model.HttpResponseStatus
+import io.zensoft.hootka.api.model.MimeType
 import java.io.InputStream
 
 interface WrappedHttpResponse {

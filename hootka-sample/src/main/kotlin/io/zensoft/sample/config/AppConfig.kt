@@ -4,7 +4,7 @@ import io.zensoft.hootka.api.SecurityExpressionInitializer
 import io.zensoft.hootka.api.UserDetails
 import io.zensoft.hootka.api.UserDetailsService
 import io.zensoft.hootka.api.internal.security.RootSecurityExpressions
-import io.zensoft.hootka.default.DefaultExceptionControllerAdvice
+import io.zensoft.hootka.helper.DefaultExceptionControllerAdvice
 import io.zensoft.sample.domain.Role
 import io.zensoft.sample.domain.User
 import org.springframework.context.annotation.Bean
@@ -31,7 +31,12 @@ class AppConfig {
             override fun findUserDetailsByUsername(value: String): UserDetails? {
                 val email = "some@gmail.com"
                 return if (value == email) {
-                    User(email, "\$2a\$10\$P.mTV9OcadADM0PhFzaMueexn3lrUV.D01CnmTi4uxdGMdrISN8wK", setOf(Role("ADMIN")), true)
+                    User(
+                        email,
+                        "\$2a\$10\$P.mTV9OcadADM0PhFzaMueexn3lrUV.D01CnmTi4uxdGMdrISN8wK",
+                        setOf(Role("ADMIN")),
+                        true
+                    ) // password is 'password'
                 } else null
             }
         }

@@ -1,5 +1,6 @@
-package io.zensoft.hootka.default
+package io.zensoft.hootka.helper
 
+import io.zensoft.hootka.annotation.ControllerAdvice
 import io.zensoft.hootka.annotation.ExceptionHandler
 import io.zensoft.hootka.annotation.ResponseStatus
 import io.zensoft.hootka.api.HttpSession
@@ -12,11 +13,8 @@ import io.zensoft.hootka.api.model.ValidationError
 import org.slf4j.LoggerFactory
 import javax.validation.ConstraintViolationException
 
+@ControllerAdvice
 class DefaultExceptionControllerAdvice {
-
-    companion object {
-        private val log = LoggerFactory.getLogger(this::class.java)
-    }
 
     @ResponseStatus(HttpResponseStatus.BAD_REQUEST)
     @ExceptionHandler([ConstraintViolationException::class])
@@ -73,6 +71,10 @@ class DefaultExceptionControllerAdvice {
     fun handleAuthenticationFailedExceptionAsJson(ex: HandlerParameterInstantiationException): ExceptionResponse {
         log.warn(ex.message)
         return ExceptionResponse(HttpResponseStatus.BAD_REQUEST.code, ex.message)
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 
 }

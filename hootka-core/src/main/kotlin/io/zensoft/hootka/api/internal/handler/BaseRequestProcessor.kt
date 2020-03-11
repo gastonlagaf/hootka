@@ -1,7 +1,5 @@
 package io.zensoft.hootka.api.internal.handler
 
-import io.netty.handler.codec.http.HttpHeaderNames
-import io.netty.util.AsciiString
 import io.zensoft.hootka.api.HttpSession
 import io.zensoft.hootka.api.SessionHandler
 import io.zensoft.hootka.api.WrappedHttpRequest
@@ -12,10 +10,11 @@ import io.zensoft.hootka.api.exceptions.PreconditionNotSatisfiedException
 import io.zensoft.hootka.api.internal.provider.*
 import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
+import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.DeserializationUtils
-import io.zensoft.hootka.api.model.MimeType
 import io.zensoft.hootka.api.model.HttpResponseStatus
+import io.zensoft.hootka.api.model.MimeType
 import org.apache.commons.lang3.StringUtils
 import java.lang.reflect.InvocationTargetException
 
@@ -97,7 +96,7 @@ class BaseRequestProcessor(
         if (result is String && result.startsWith(REDIRECT_PREFIX)) {
             response.mutate(HttpResponseStatus.FOUND, handler.contentType)
             val pathIdx = result.indexOf(REDIRECT_PREFIX) + REDIRECT_PREFIX.count()
-            response.setHeader(HttpHeaderNames.LOCATION.toString(), AsciiString(result.substring(pathIdx)).toString())
+            response.setHeader(HttpHeaderTitles.location.value, result.substring(pathIdx))
             return true
         }
         return false

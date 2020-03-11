@@ -1,4 +1,4 @@
-package io.zensoft.hootka.default
+package io.zensoft.hootka.helper
 
 import io.zensoft.hootka.api.SecurityExpressionInitializer
 import io.zensoft.hootka.api.UserDetails

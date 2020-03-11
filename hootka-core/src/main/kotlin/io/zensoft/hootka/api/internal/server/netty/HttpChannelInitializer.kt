@@ -1,4 +1,4 @@
-package io.zensoft.hootka.api.internal.server
+package io.zensoft.hootka.api.internal.server.netty
 
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.SocketChannel

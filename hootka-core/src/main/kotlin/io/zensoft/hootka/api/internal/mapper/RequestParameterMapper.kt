@@ -17,8 +17,6 @@ import kotlin.reflect.jvm.javaType
 
 class RequestParameterMapper : HttpRequestMapper {
 
-    private val charset = Charset.forName("UTF-8")
-
     override fun getSupportedAnnotation(): KClass<out Annotation> = RequestParam::class
 
     override fun supportsAnnotation(annotations: List<Annotation>): Boolean {
@@ -38,7 +36,7 @@ class RequestParameterMapper : HttpRequestMapper {
             if (contentType != HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString()) {
                 throw IllegalArgumentException("Cannot map request parameter. Mismatched content type for post request")
             }
-            QueryStringDecoder(context.request.getContentAsString(charset), false).parameters()
+            QueryStringDecoder(context.request.getContentAsString(), false).parameters()
         } else {
             context.request.getQueryParameters()
         }

@@ -1,4 +1,4 @@
-package io.zensoft.hootka.api.internal.server
+package io.zensoft.hootka.api.internal.server.netty
 
 import io.netty.buffer.Unpooled
 import io.netty.buffer.Unpooled.EMPTY_BUFFER
@@ -7,7 +7,6 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.handler.codec.http.*
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder
-import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.NettyWrappedHttpRequest
 import io.zensoft.hootka.api.internal.http.NettyWrappedHttpResponse

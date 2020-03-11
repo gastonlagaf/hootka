@@ -2,8 +2,8 @@ package io.zensoft.hootka.api.internal.support
 
 import io.zensoft.hootka.api.internal.invoke.MethodInvocation
 import io.zensoft.hootka.api.model.HttpMethod
-import io.zensoft.hootka.api.model.MimeType
 import io.zensoft.hootka.api.model.HttpResponseStatus
+import io.zensoft.hootka.api.model.MimeType
 
 class HttpHandlerMetaInfo(
     private val instance: Any,

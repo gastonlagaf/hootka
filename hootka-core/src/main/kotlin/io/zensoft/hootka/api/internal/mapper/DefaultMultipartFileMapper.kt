@@ -2,9 +2,11 @@ package io.zensoft.hootka.api.internal.mapper
 
 import io.zensoft.hootka.annotation.MultipartFile
 import io.zensoft.hootka.api.HttpRequestMapper
+import io.zensoft.hootka.api.internal.server.nio.http.request.CaretPosition
 import io.zensoft.hootka.api.internal.server.nio.http.request.HttpRequestParser
 import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
+import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.model.InMemoryFile
 import java.nio.charset.Charset
@@ -21,14 +23,17 @@ class DefaultMultipartFileMapper : HttpRequestMapper {
     }
 
     override fun createValue(parameter: HandlerMethodParameter, context: RequestContext, handlerMethod: HttpHandlerMetaInfo): Any? {
-        val multipartContent = context.request.getContentAsString(Charset.defaultCharset())
+        val multipartContent = context.request.getContentAsString()
         val annotation = parameter.annotation!! as MultipartFile
 
-        val boundary = HttpRequestParser(context.request.getHeader("CONTENT-TYPE")!!).boundary()
-        val filesList = multipartContent.split(boundary).filter { !it.isBlank() && it != "--\r\n" }
+        val boundary = context.request.getHeader(HttpHeaderTitles.contentType.uppercasedValue)
+            ?.let { HttpRequestParser(it, CaretPosition.HEADERS).boundary() }
+            ?: throw IllegalArgumentException("Content-Type spec not found for multipart request")
+        val splitBody = multipartContent.split(boundary)
+        val filesList = splitBody.subList(1, splitBody.lastIndex)
         val files = mutableListOf<InMemoryFile>()
         filesList.forEach {
-            val file = HttpRequestParser(it).multipartFile()
+            val file = HttpRequestParser(it, CaretPosition.BODY).multipartFile()
             val extension = extractExtension(file.name)
             if (annotation.acceptExtensions.isNotEmpty() && !annotation.acceptExtensions.contains(extension)) {
                 throw IllegalArgumentException("Unsupported file type with extension $extension")

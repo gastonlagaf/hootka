@@ -24,7 +24,7 @@ object DeserializationUtils {
                     type as Class<*>
                 }
                 val value = getFieldValue(field.name!!, clazz, queryParams) ?: continue
-                args.put(field.name!!, value)
+                args[field.name!!] = value
             }
         } else {
             val fields = getFields(beanClass)

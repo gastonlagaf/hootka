@@ -1,4 +1,4 @@
-package io.zensoft.hootka.api.internal.server
+package io.zensoft.hootka.api.internal.server.netty
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelOption

@@ -2,9 +2,11 @@ package io.zensoft.hootka.api.internal.mapper
 
 import io.zensoft.hootka.annotation.MultipartObject
 import io.zensoft.hootka.api.HttpRequestMapper
+import io.zensoft.hootka.api.internal.server.nio.http.request.CaretPosition
 import io.zensoft.hootka.api.internal.server.nio.http.request.HttpRequestParser
 import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
+import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.NumberUtils
 import io.zensoft.hootka.api.model.InMemoryFile
@@ -17,6 +19,7 @@ import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaType
 
 class DefaultMultipartObjectMapper : HttpRequestMapper {
+
     override fun getSupportedAnnotation(): KClass<out Annotation> = MultipartObject::class
 
     override fun supportsAnnotation(annotations: List<Annotation>): Boolean {
@@ -29,11 +32,14 @@ class DefaultMultipartObjectMapper : HttpRequestMapper {
         val ctor = parameter.clazz.kotlin.primaryConstructor!!
         val args = mutableListOf<Any?>()
 
-        val boundary = HttpRequestParser(context.request.getHeader("CONTENT-TYPE")!!).boundary()
-        val objectList = multipartContent.split(boundary).filter { !it.isBlank() && it != "--\r\n" }
+        val boundary = context.request.getHeader(HttpHeaderTitles.contentType.uppercasedValue)
+            ?.let { HttpRequestParser(it, CaretPosition.HEADERS).boundary() }
+            ?: throw IllegalArgumentException("Content-Type spec not found for multipart request")
+        val splitBody = multipartContent.split(boundary)
+        val objectList = splitBody.subList(1, splitBody.lastIndex)
         val contentList = mutableMapOf<String?, Any?>()
         objectList.forEach {
-            val pair = HttpRequestParser(it).multipartObject()
+            val pair = HttpRequestParser(it, CaretPosition.BODY).multipartObject()
             contentList[pair.first] = pair.second
         }
         for (field in ctor.parameters) {

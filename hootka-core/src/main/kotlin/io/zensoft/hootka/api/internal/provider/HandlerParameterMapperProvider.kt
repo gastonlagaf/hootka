@@ -60,7 +60,7 @@ class HandlerParameterMapperProvider(
     @PostConstruct
     private fun init() {
         mappers = context.getBeansOfType(HttpRequestMapper::class.java)
-            .values.associate { it.getSupportedAnnotation().simpleName!! to it }
+            .values.associateBy { it.getSupportedAnnotation().simpleName!! }
     }
 
 }

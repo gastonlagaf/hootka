@@ -14,7 +14,7 @@ interface WrappedHttpRequest {
 
     fun getContentStream(): InputStream
 
-    fun getContentAsString(charset: Charset): String
+    fun getContentAsString(charset: Charset = Charset.defaultCharset()): String
 
     fun getHeader(key: String): String?
 

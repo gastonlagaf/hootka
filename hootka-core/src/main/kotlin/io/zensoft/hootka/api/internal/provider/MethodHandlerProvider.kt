@@ -6,6 +6,7 @@ import io.zensoft.hootka.api.internal.invoke.MethodInvocationProducer
 import io.zensoft.hootka.api.internal.support.HandlerMethodKey
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.model.HttpMethod
+import io.zensoft.hootka.api.model.HttpResponseStatus
 import org.apache.commons.lang3.StringUtils
 import org.springframework.context.ApplicationContext
 import org.springframework.util.AntPathMatcher
@@ -42,7 +43,7 @@ class MethodHandlerProvider(
             for (function in functions) {
                 val pathAnnotation = function.findAnnotation<RequestMapping>() ?: continue
                 val parameterMapping = handlerParameterMapperProvider.mapHandlerParameters(function)
-                val status = function.findAnnotation<ResponseStatus>()?.value ?: io.zensoft.hootka.api.model.HttpResponseStatus.OK
+                val status = function.findAnnotation<ResponseStatus>()?.value ?: HttpResponseStatus.OK
                 val type = pathAnnotation.produces
                 val stateless = statelessBeanAnnotation != null || function.findAnnotation<Stateless>() != null
                 val preconditionExpression = resolveAllowancePrecondition(globalPrecondition, function)
