@@ -2,14 +2,14 @@ package io.zensoft.hootka.api.internal.mapper
 
 import io.zensoft.hootka.annotation.MultipartObject
 import io.zensoft.hootka.api.HttpRequestMapper
-import io.zensoft.hootka.api.internal.server.nio.http.request.CaretPosition
-import io.zensoft.hootka.api.internal.server.nio.http.request.HttpRequestParser
+import io.zensoft.hootka.api.internal.CaretPosition
+import io.zensoft.hootka.api.internal.HttpRequestParser
 import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
-import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.NumberUtils
-import io.zensoft.hootka.api.model.InMemoryFile
+import io.zensoft.hootka.api.support.HttpHeaderTitles
+import io.zensoft.hootka.api.support.InMemoryFile
 import java.nio.charset.Charset
 import javax.validation.Valid
 import kotlin.reflect.KClass

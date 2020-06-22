@@ -6,14 +6,11 @@ import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.util.SerializationUtils.deserialize
 import io.zensoft.hootka.util.SerializationUtils.serialize
-import org.springframework.stereotype.Component
 import java.sql.PreparedStatement
 import java.util.*
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
 
-
-@Component
 class DbSessionStorage(
     private val dataSource: DataSource,
     private val cookieName: String
@@ -52,7 +49,7 @@ class DbSessionStorage(
 
     override fun createAndAssignSession(response: WrappedHttpResponse): HttpSession {
         val session = this.createSession()
-        response.setCookie(cookieName, session.getId(), true, null)
+        response.setCookie(cookieName, session.getId(), true)
         return session
     }
 

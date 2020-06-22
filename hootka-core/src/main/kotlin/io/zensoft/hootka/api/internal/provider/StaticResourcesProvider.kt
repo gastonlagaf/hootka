@@ -6,19 +6,16 @@ import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.internal.utils.ResourceMimeTypeUtils
 import io.zensoft.hootka.api.model.HttpMethod
 import io.zensoft.hootka.api.model.HttpResponseStatus
+import io.zensoft.hootka.api.support.HttpHeaderTitles
 import org.apache.commons.io.IOUtils
 import org.springframework.context.ApplicationContext
 import org.springframework.util.AntPathMatcher
 import javax.annotation.PostConstruct
 
 class StaticResourcesProvider(
-    private val applicationContext: ApplicationContext,
+    private val componentsStorage: ComponentsStorage,
     private val resourceMaxAge: Long
 ) {
-
-    companion object {
-        private const val CACHE_CONTROL_HEADER = "Cache-Control"
-    }
 
     private val pathMatcher = AntPathMatcher()
     private val resourceProviders = HashMap<String, StaticResourceHandler>()
@@ -34,7 +31,7 @@ class StaticResourcesProvider(
                     val responseBody = IOUtils.toByteArray(resultFile)
                     response.mutate(HttpResponseStatus.OK, ResourceMimeTypeUtils.resolveMimeType(resourcePath), responseBody)
                     if (resourceHandler.isCacheable()) {
-                        response.setHeader(CACHE_CONTROL_HEADER, "max-age=$resourceMaxAge")
+                        response.setHeader(HttpHeaderTitles.cacheControl.value, "max-age=$resourceMaxAge")
                     }
                     return true
                 }
@@ -43,9 +40,8 @@ class StaticResourcesProvider(
         return false
     }
 
-    @PostConstruct
-    private fun init() {
-        val resourceHandlers = applicationContext.getBeansOfType(StaticResourceHandler::class.java).values
+    fun init() {
+        val resourceHandlers = componentsStorage.getResourceHandlers()
         resourceHandlers.forEach {
             val path = it.getPath()
             if (!resourceProviders.containsKey(path)) {

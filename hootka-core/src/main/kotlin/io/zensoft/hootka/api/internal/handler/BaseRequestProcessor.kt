@@ -1,21 +1,18 @@
 package io.zensoft.hootka.api.internal.handler
 
-import io.zensoft.hootka.api.HttpSession
-import io.zensoft.hootka.api.SessionHandler
-import io.zensoft.hootka.api.WrappedHttpRequest
-import io.zensoft.hootka.api.WrappedHttpResponse
+import io.zensoft.hootka.api.*
 import io.zensoft.hootka.api.exceptions.HandlerMethodNotFoundException
-import io.zensoft.hootka.api.exceptions.HandlerParameterInstantiationException
-import io.zensoft.hootka.api.exceptions.PreconditionNotSatisfiedException
 import io.zensoft.hootka.api.internal.provider.*
 import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
-import io.zensoft.hootka.api.internal.support.HttpHeaderTitles
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.DeserializationUtils
 import io.zensoft.hootka.api.model.HttpResponseStatus
 import io.zensoft.hootka.api.model.MimeType
+import io.zensoft.hootka.api.support.HttpHeaderTitles
 import org.apache.commons.lang3.StringUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 
 class BaseRequestProcessor(
@@ -26,13 +23,9 @@ class BaseRequestProcessor(
     private val responseResolverProvider: ResponseResolverProvider,
     private val staticResourcesProvider: StaticResourcesProvider,
     private val preconditionsProvider: SecurityExpressionExecutor? = null
-) {
+): RequestProcessor {
 
-    companion object {
-        private const val REDIRECT_PREFIX = "redirect:"
-    }
-
-    fun processRequest(wrappedRequest: WrappedHttpRequest, wrappedResponse: WrappedHttpResponse) {
+    override fun process(wrappedRequest: WrappedHttpRequest, wrappedResponse: WrappedHttpResponse) {
         var handler: HttpHandlerMetaInfo? = null
         var context: RequestContext? = null
         try {
@@ -51,10 +44,6 @@ class BaseRequestProcessor(
             if (!staticResourcesProvider.handleStaticResource(wrappedRequest, wrappedResponse)) {
                 handleException(MimeType.TEXT_HTML, ex, context!!)
             }
-        } catch (ex: PreconditionNotSatisfiedException) {
-            handleException(handler!!.contentType, ex, context!!)
-        } catch (ex: HandlerParameterInstantiationException) {
-            handleException(handler!!.contentType, ex, context!!)
         } catch (ex: Exception) {
             handleException(handler!!.contentType, ex, context!!)
         }
@@ -72,6 +61,8 @@ class BaseRequestProcessor(
     }
 
     private fun handleException(contentType: MimeType, exception: Throwable, context: RequestContext) {
+        log.warn("Handling Exception occured - ${exception.message}")
+
         val exceptionHandler = exceptionHandlerProvider.getExceptionHandler(exception::class, contentType)
             ?: exceptionHandlerProvider.getExceptionHandler(exception::class)
         if (exceptionHandler != null) {
@@ -122,6 +113,12 @@ class BaseRequestProcessor(
                 ?: throw IllegalStateException("Unknown exception specified")
             else -> DeserializationUtils.createBeanFromQueryString(parameterType, context.request.getQueryParameters())
         }
+    }
+
+    companion object {
+        private const val REDIRECT_PREFIX = "redirect:"
+
+        private val log: Logger = LoggerFactory.getLogger(BaseRequestProcessor::class.java)
     }
 
 }

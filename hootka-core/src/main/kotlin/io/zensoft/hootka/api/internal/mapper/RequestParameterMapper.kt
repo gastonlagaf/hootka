@@ -1,16 +1,12 @@
 package io.zensoft.hootka.api.internal.mapper
 
-import io.netty.handler.codec.http.HttpHeaderNames
-import io.netty.handler.codec.http.HttpHeaderValues
-import io.netty.handler.codec.http.QueryStringDecoder
 import io.zensoft.hootka.annotation.RequestParam
 import io.zensoft.hootka.api.HttpRequestMapper
-import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
-import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
-import io.zensoft.hootka.api.internal.support.RequestContext
+import io.zensoft.hootka.api.internal.HttpRequestParser
+import io.zensoft.hootka.api.internal.support.*
 import io.zensoft.hootka.api.internal.utils.NumberUtils
 import io.zensoft.hootka.api.model.HttpMethod
-import java.nio.charset.Charset
+import io.zensoft.hootka.api.support.HttpHeaderTitles
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.javaType
@@ -32,11 +28,11 @@ class RequestParameterMapper : HttpRequestMapper {
 
     override fun createValue(parameter: HandlerMethodParameter, context: RequestContext, handlerMethod: HttpHandlerMetaInfo): Any? {
         val queryParams = if (HttpMethod.POST == context.request.getMethod()) {
-            val contentType = context.request.getHeader(HttpHeaderNames.CONTENT_TYPE.toString())
-            if (contentType != HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString()) {
+            val contentType = context.request.getHeader(HttpHeaderTitles.contentType.uppercasedValue)
+            if ("application/x-www-form-urlencoded" != contentType) {
                 throw IllegalArgumentException("Cannot map request parameter. Mismatched content type for post request")
             }
-            QueryStringDecoder(context.request.getContentAsString(), false).parameters()
+            HttpRequestParser(context.request.getContentAsString()).params()
         } else {
             context.request.getQueryParameters()
         }

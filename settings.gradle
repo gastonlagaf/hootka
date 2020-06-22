@@ -4,3 +4,7 @@ include('hootka-autoconfigure')
 include('hootka-core')
 include('hootka-starter')
 include('hootka-sample')
+include('hootka-transport-api')
+include('hootka-transport-netty')
+include('hootka-transport-nio')
+

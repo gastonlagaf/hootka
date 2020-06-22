@@ -8,15 +8,13 @@ import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.model.HttpMethod
 import io.zensoft.hootka.api.model.HttpResponseStatus
 import org.apache.commons.lang3.StringUtils
-import org.springframework.context.ApplicationContext
 import org.springframework.util.AntPathMatcher
-import javax.annotation.PostConstruct
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.findAnnotation
 
 class MethodHandlerProvider(
-    private val context: ApplicationContext,
+    private val componentsStorage: ComponentsStorage,
     private val handlerParameterMapperProvider: HandlerParameterMapperProvider
 ) {
 
@@ -29,12 +27,11 @@ class MethodHandlerProvider(
         val stringMethod = httpMethod.toString()
         return storage.entries
             .firstOrNull { it.key.method == stringMethod && antPathMatcher.match(it.key.path, path) }?.value
-            ?: throw HandlerMethodNotFoundException()
+            ?: throw HandlerMethodNotFoundException("$httpMethod $path - Not Found")
     }
 
-    @PostConstruct
-    private fun init() {
-        val beans = context.getBeansWithAnnotation(Controller::class.java).values
+    fun init() {
+        val beans = componentsStorage.getMethodHandlers()
         for (bean in beans) {
             val superPath = bean::class.findAnnotation<RequestMapping>()?.value?.single() ?: StringUtils.EMPTY
             val globalPrecondition = bean::class.findAnnotation<PreAuthorize>()

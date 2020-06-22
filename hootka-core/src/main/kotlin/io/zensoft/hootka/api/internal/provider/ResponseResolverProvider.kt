@@ -3,11 +3,9 @@ package io.zensoft.hootka.api.internal.provider
 import io.zensoft.hootka.api.HttpResponseResolver
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.model.MimeType
-import org.springframework.context.ApplicationContext
-import javax.annotation.PostConstruct
 
 class ResponseResolverProvider(
-    private val applicationContext: ApplicationContext
+    private val componentsStorage: ComponentsStorage
 ) {
 
     private lateinit var responseResolvers: Map<String, HttpResponseResolver>
@@ -18,10 +16,8 @@ class ResponseResolverProvider(
             ?: throw IllegalArgumentException("Unsupported response content type $mimeType")
     }
 
-    @PostConstruct
-    private fun init() {
-        responseResolvers = applicationContext.getBeansOfType(HttpResponseResolver::class.java)
-            .values.associateBy { it.getContentType().toString() }
+    fun init() {
+        responseResolvers = componentsStorage.getResponseResolvers().associateBy { it.getContentType().toString() }
     }
 
 }

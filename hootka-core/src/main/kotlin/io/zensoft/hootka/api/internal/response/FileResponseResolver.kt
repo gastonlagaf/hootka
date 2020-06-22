@@ -2,8 +2,8 @@ package io.zensoft.hootka.api.internal.response
 
 import io.zensoft.hootka.api.HttpResponseResolver
 import io.zensoft.hootka.api.WrappedHttpResponse
-import io.zensoft.hootka.api.model.InMemoryFile
 import io.zensoft.hootka.api.model.MimeType
+import io.zensoft.hootka.api.support.InMemoryFile
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream

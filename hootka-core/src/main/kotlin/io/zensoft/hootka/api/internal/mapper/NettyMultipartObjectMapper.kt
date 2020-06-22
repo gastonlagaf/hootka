@@ -12,7 +12,7 @@ import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.internal.support.RequestContext
 import io.zensoft.hootka.api.internal.utils.NumberUtils
-import io.zensoft.hootka.api.model.InMemoryFile
+import io.zensoft.hootka.api.support.InMemoryFile
 import javax.validation.Valid
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter

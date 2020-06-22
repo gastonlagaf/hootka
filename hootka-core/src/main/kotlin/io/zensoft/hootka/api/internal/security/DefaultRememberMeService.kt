@@ -31,7 +31,7 @@ class DefaultRememberMeService(
     override fun invalidateToken(request: WrappedHttpRequest, response: WrappedHttpResponse) {
         val rememberMeCookie = request.getCookies()[cookieName]
         if (null != rememberMeCookie) {
-            response.setCookie(cookieName, RandomStringUtils.randomAlphanumeric(30), true, null)
+            response.setCookie(cookieName, RandomStringUtils.randomAlphanumeric(30), true)
         }
     }
 

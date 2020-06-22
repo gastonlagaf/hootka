@@ -6,15 +6,13 @@ import io.zensoft.hootka.api.exceptions.HandlerParameterInstantiationException
 import io.zensoft.hootka.api.internal.support.HandlerMethodParameter
 import io.zensoft.hootka.api.internal.support.HttpHandlerMetaInfo
 import io.zensoft.hootka.api.internal.support.RequestContext
-import org.springframework.context.ApplicationContext
-import javax.annotation.PostConstruct
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaType
 
 class HandlerParameterMapperProvider(
-    private val context: ApplicationContext,
+    private val componentsStorage: ComponentsStorage,
     private val validationService: ValidationProvider
 ) {
 
@@ -57,10 +55,8 @@ class HandlerParameterMapperProvider(
         return parameters
     }
 
-    @PostConstruct
-    private fun init() {
-        mappers = context.getBeansOfType(HttpRequestMapper::class.java)
-            .values.associateBy { it.getSupportedAnnotation().simpleName!! }
+    fun init() {
+        mappers = componentsStorage.getParameterMappers().associateBy { it.getSupportedAnnotation().simpleName!! }
     }
 
 }

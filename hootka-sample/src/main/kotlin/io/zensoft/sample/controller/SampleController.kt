@@ -6,6 +6,7 @@ import io.zensoft.hootka.api.SecurityProvider
 import io.zensoft.hootka.api.WrappedHttpRequest
 import io.zensoft.hootka.api.WrappedHttpResponse
 import io.zensoft.hootka.api.model.*
+import io.zensoft.hootka.api.support.InMemoryFile
 import io.zensoft.sample.domain.AuthRequest
 import io.zensoft.sample.domain.MultiObject
 import io.zensoft.sample.domain.User

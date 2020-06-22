@@ -30,7 +30,7 @@ class InMemorySessionStorage(
 
     override fun createAndAssignSession(response: WrappedHttpResponse): HttpSession {
         val session = this.createSession()
-        response.setCookie(cookieName, session.getId(), true, null)
+        response.setCookie(cookieName, session.getId(), true)
         return session
     }
 

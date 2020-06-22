@@ -1,5 +1,8 @@
 dependencies {
     compile project(":hootka-core")
+    compile project(":hootka-transport-netty")
+    compile project(":hootka-transport-nio")
 
     compile("org.springframework.boot:spring-boot-autoconfigure")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }

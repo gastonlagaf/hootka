@@ -19,7 +19,9 @@ class MethodInvocationProducer {
         val fileManager = TempFileManager(compiler.getStandardFileManager(null, null, null))
 
         val compilationTask = compiler.getTask(null, fileManager, null, null, null, listOf(unit))
-        compilationTask.call()
+        if (!compilationTask.call()) {
+            throw ExceptionInInitializerError("Failed controller method compilation. Method ${function.name} in ${bean::class.simpleName}")
+        }
 
         val classLoader = MethodInvocationsClassLoader(fileManager)
         val clazz = classLoader.loadClass(fullClassName)

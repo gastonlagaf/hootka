@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import freemarker.template.Template
+import io.zensoft.hootka.annotation.Controller
+import io.zensoft.hootka.annotation.ControllerAdvice
 import io.zensoft.hootka.api.*
 import io.zensoft.hootka.api.internal.handler.BaseRequestProcessor
 import io.zensoft.hootka.api.internal.http.DefaultSessionHandler
@@ -18,10 +20,10 @@ import io.zensoft.hootka.api.internal.response.PlainTextResponseResolver
 import io.zensoft.hootka.api.internal.security.DefaultRememberMeService
 import io.zensoft.hootka.api.internal.security.DefaultSecurityProvider
 import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
-import io.zensoft.hootka.api.internal.server.netty.HttpChannelInitializer
-import io.zensoft.hootka.api.internal.server.netty.HttpControllerHandler
-import io.zensoft.hootka.api.internal.server.netty.HttpServer
-import io.zensoft.hootka.api.internal.server.nio.Server
+import io.zensoft.hootka.transport.netty.HttpChannelInitializer
+import io.zensoft.hootka.transport.netty.HttpControllerHandler
+import io.zensoft.hootka.transport.netty.HttpServer
+import io.zensoft.hootka.transport.nio.Server
 import io.zensoft.hootka.api.internal.validation.DefaultValidationProvider
 import io.zensoft.hootka.api.model.SimpleAuthenticationDetails
 import io.zensoft.hootka.autoconfigure.property.WebConfig
@@ -49,7 +51,7 @@ class ServerWebConfiguration(
     @Bean
     @ConditionalOnMissingBean(freemarker.template.Configuration::class)
     fun freemarkerConfiguration(): freemarker.template.Configuration {
-        val configuration = object : freemarker.template.Configuration(freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS) {
+        val configuration = object : freemarker.template.Configuration(DEFAULT_INCOMPATIBLE_IMPROVEMENTS) {
             override fun getTemplate(name: String?): Template {
                 return super.getTemplate("$name${webConfig.freemarker.suffix}")
             }
@@ -124,7 +126,7 @@ class ServerWebConfiguration(
 
     @Bean
     @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
-    fun nioHttpServer(): Server = Server(requestProcessor())
+    fun nioHttpServer(): Server = Server(requestProcessor(), webConfig.port)
 
     // Request Mappers
 
@@ -132,20 +134,20 @@ class ServerWebConfiguration(
     @ConditionalOnMissingBean(ModelAttributeMapper::class)
     fun modelAttributeMapper(): ModelAttributeMapper = ModelAttributeMapper()
 
-//    @Bean
-//    @ConditionalOnMissingBean(NettyMultipartFileMapper::class)
-//    fun nettyMultipartFileMapper(): NettyMultipartFileMapper = NettyMultipartFileMapper()
+    @Bean
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
+    fun nettyMultipartFileMapper(): NettyMultipartFileMapper = NettyMultipartFileMapper()
 
     @Bean
-    @ConditionalOnMissingBean(DefaultMultipartFileMapper::class)
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
     fun defaultMultipartFileMapper(): DefaultMultipartFileMapper = DefaultMultipartFileMapper()
 
-//    @Bean
-//    @ConditionalOnMissingBean(NettyMultipartObjectMapper::class)
-//    fun nettyMultipartObjectMapper(): NettyMultipartObjectMapper = NettyMultipartObjectMapper()
+    @Bean
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
+    fun nettyMultipartObjectMapper(): NettyMultipartObjectMapper = NettyMultipartObjectMapper()
 
     @Bean
-    @ConditionalOnMissingBean(DefaultMultipartObjectMapper::class)
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
     fun defaultMultipartObjectMapper(): DefaultMultipartObjectMapper = DefaultMultipartObjectMapper()
 
     @Bean
@@ -201,22 +203,37 @@ class ServerWebConfiguration(
     // Providers
 
     @Bean
+    fun componentsStorage(): ComponentsStorage {
+        val result = ComponentsStorage()
+        result.addMethodHandlers(applicationContext.getBeansWithAnnotation(Controller::class.java).values.toList())
+        result.addExceptionHandlers(applicationContext.getBeansWithAnnotation(ControllerAdvice::class.java).values.toList())
+        result.addParameterMappers(applicationContext.getBeansOfType(HttpRequestMapper::class.java).values.toList())
+        result.addResponseResolvers(applicationContext.getBeansOfType(HttpResponseResolver::class.java).values.toList())
+        result.addResourceHandlers(applicationContext.getBeansOfType(StaticResourceHandler::class.java).values.toList())
+        return result
+    }
+
+    @Bean
     @ConditionalOnMissingBean(StaticResourcesProvider::class)
-    fun staticResourcesProvider(): StaticResourcesProvider = StaticResourcesProvider(applicationContext, webConfig.static.cachedResourceExpiry)
+    fun staticResourcesProvider(): StaticResourcesProvider = StaticResourcesProvider(componentsStorage(), webConfig.static.cachedResourceExpiry)
+        .also { it.init() }
 
     @Bean
     @ConditionalOnMissingBean(ResponseResolverProvider::class)
-    fun responseResolverProvider(): ResponseResolverProvider = ResponseResolverProvider(applicationContext)
+    fun responseResolverProvider(): ResponseResolverProvider = ResponseResolverProvider(componentsStorage()).also { it.init() }
 
     @Bean
     @ConditionalOnMissingBean(HandlerParameterMapperProvider::class)
-    fun handlerParameterMapperProvider(): HandlerParameterMapperProvider = HandlerParameterMapperProvider(applicationContext, defaultValidationProvider())
+    fun handlerParameterMapperProvider(): HandlerParameterMapperProvider = HandlerParameterMapperProvider(componentsStorage(), defaultValidationProvider())
+        .also { it.init() }
 
     @Bean
     @ConditionalOnMissingBean(MethodHandlerProvider::class)
-    fun methodHandlerProvider(): MethodHandlerProvider = MethodHandlerProvider(applicationContext, handlerParameterMapperProvider())
+    fun methodHandlerProvider(): MethodHandlerProvider = MethodHandlerProvider(componentsStorage(), handlerParameterMapperProvider())
+        .also { it.init() }
 
     @Bean
     @ConditionalOnMissingBean(ExceptionHandlerProvider::class)
-    fun exceptionHandlerProvider(): ExceptionHandlerProvider = ExceptionHandlerProvider(applicationContext, handlerParameterMapperProvider())
+    fun exceptionHandlerProvider(): ExceptionHandlerProvider = ExceptionHandlerProvider(componentsStorage(), handlerParameterMapperProvider())
+        .also { it.init() }
 }
