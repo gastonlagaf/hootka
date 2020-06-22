@@ -22,20 +22,24 @@ import io.zensoft.hootka.api.internal.security.DefaultSecurityProvider
 import io.zensoft.hootka.api.internal.security.SecurityExpressionExecutor
 import io.zensoft.hootka.transport.netty.HttpChannelInitializer
 import io.zensoft.hootka.transport.netty.HttpControllerHandler
-import io.zensoft.hootka.transport.netty.HttpServer
-import io.zensoft.hootka.transport.nio.Server
+import io.zensoft.hootka.transport.netty.NettyServer
+import io.zensoft.hootka.transport.nio.NioServer
 import io.zensoft.hootka.api.internal.validation.DefaultValidationProvider
 import io.zensoft.hootka.api.model.SimpleAuthenticationDetails
 import io.zensoft.hootka.autoconfigure.property.WebConfig
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.*
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.FilterType
+import java.util.*
 
 @Configuration
+@ComponentScan(includeFilters = [ComponentScan.Filter(type = FilterType.ANNOTATION, value = [Controller::class, ControllerAdvice::class])])
 @EnableConfigurationProperties(WebConfig::class)
 class ServerWebConfiguration(
     private val applicationContext: ApplicationContext,
@@ -114,19 +118,21 @@ class ServerWebConfiguration(
 
     @Bean
     @ConditionalOnMissingBean(HttpControllerHandler::class)
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
     fun httpControllerHandler(): HttpControllerHandler = HttpControllerHandler(requestProcessor())
 
     @Bean
+    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
     @ConditionalOnMissingBean(HttpChannelInitializer::class)
     fun httpChannelInitializer(): HttpChannelInitializer = HttpChannelInitializer(httpControllerHandler())
 
     @Bean
     @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
-    fun nettyHttpServer(): HttpServer = HttpServer(webConfig.port, httpChannelInitializer())
+    fun nettyHttpServer(): NettyServer = NettyServer(webConfig.port, httpChannelInitializer())
 
     @Bean
     @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
-    fun nioHttpServer(): Server = Server(requestProcessor(), webConfig.port)
+    fun nioHttpServer(): NioServer = NioServer(requestProcessor(), webConfig.port)
 
     // Request Mappers
 
@@ -135,19 +141,11 @@ class ServerWebConfiguration(
     fun modelAttributeMapper(): ModelAttributeMapper = ModelAttributeMapper()
 
     @Bean
-    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
-    fun nettyMultipartFileMapper(): NettyMultipartFileMapper = NettyMultipartFileMapper()
-
-    @Bean
-    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
+    @ConditionalOnMissingBean(DefaultMultipartFileMapper::class)
     fun defaultMultipartFileMapper(): DefaultMultipartFileMapper = DefaultMultipartFileMapper()
 
     @Bean
-    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "netty", matchIfMissing = false)
-    fun nettyMultipartObjectMapper(): NettyMultipartObjectMapper = NettyMultipartObjectMapper()
-
-    @Bean
-    @ConditionalOnProperty(name = ["hootka.server"], havingValue = "nio", matchIfMissing = true)
+    @ConditionalOnMissingBean(DefaultMultipartObjectMapper::class)
     fun defaultMultipartObjectMapper(): DefaultMultipartObjectMapper = DefaultMultipartObjectMapper()
 
     @Bean
@@ -236,4 +234,8 @@ class ServerWebConfiguration(
     @ConditionalOnMissingBean(ExceptionHandlerProvider::class)
     fun exceptionHandlerProvider(): ExceptionHandlerProvider = ExceptionHandlerProvider(componentsStorage(), handlerParameterMapperProvider())
         .also { it.init() }
+
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(ServerWebConfiguration::class.java)
+    }
 }

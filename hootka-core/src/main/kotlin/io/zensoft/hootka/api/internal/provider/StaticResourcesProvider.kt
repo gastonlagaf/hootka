@@ -8,9 +8,7 @@ import io.zensoft.hootka.api.model.HttpMethod
 import io.zensoft.hootka.api.model.HttpResponseStatus
 import io.zensoft.hootka.api.support.HttpHeaderTitles
 import org.apache.commons.io.IOUtils
-import org.springframework.context.ApplicationContext
 import org.springframework.util.AntPathMatcher
-import javax.annotation.PostConstruct
 
 class StaticResourcesProvider(
     private val componentsStorage: ComponentsStorage,

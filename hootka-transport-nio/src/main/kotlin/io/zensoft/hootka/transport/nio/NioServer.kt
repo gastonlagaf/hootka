@@ -1,11 +1,10 @@
 package io.zensoft.hootka.transport.nio
 
+import io.zensoft.hootka.api.HttpServer
 import io.zensoft.hootka.api.RequestProcessor
 import io.zensoft.hootka.transport.nio.threads.DefaultWorkerPool
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.ApplicationListener
 import java.net.InetSocketAddress
 import java.net.StandardSocketOptions
 import java.nio.channels.SelectionKey
@@ -13,15 +12,15 @@ import java.nio.channels.Selector
 import java.nio.channels.ServerSocketChannel
 import java.util.concurrent.Executors
 
-class Server(
+class NioServer(
     requestProcessor: RequestProcessor,
     private val port: Int
-) : ApplicationListener<ApplicationReadyEvent> {
+): HttpServer {
 
     private val selector = Selector.open()
     private val workers = DefaultWorkerPool(Runtime.getRuntime().availableProcessors(), requestProcessor)
 
-    override fun onApplicationEvent(event: ApplicationReadyEvent) {
+    override fun startup() {
         Executors.newSingleThreadExecutor().submit {
             startupServer()
         }
@@ -54,7 +53,7 @@ class Server(
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(Server::class.java)
+        private val log: Logger = LoggerFactory.getLogger(NioServer::class.java)
     }
 
 }

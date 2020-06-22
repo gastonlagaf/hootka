@@ -10,18 +10,18 @@ import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
+import io.zensoft.hootka.api.HttpServer
 import org.slf4j.LoggerFactory
-import org.springframework.boot.CommandLineRunner
 import java.util.*
 import javax.annotation.PreDestroy
 
-class HttpServer(
+class NettyServer(
     port: Int,
     private val httpChannelInitializer: HttpChannelInitializer
-) : CommandLineRunner {
+): HttpServer {
 
     companion object {
-        private val log = LoggerFactory.getLogger(HttpServer::class.java)
+        private val log = LoggerFactory.getLogger(NettyServer::class.java)
     }
 
     private var bossGroup: EventLoopGroup
@@ -47,7 +47,7 @@ class HttpServer(
     }
 
 
-    override fun run(vararg args: String?) {
+    override fun startup() {
         try {
             val sb = ServerBootstrap()
                 .group(bossGroup, workerGroup)
