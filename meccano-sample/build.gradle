@@ -1,0 +1,6 @@
+dependencies {
+    compile project(":meccano-starter")
+}
+
+bootJar.enabled = true
+jar.enabled = true

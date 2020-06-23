@@ -1,10 +1,12 @@
-rootProject.name = 'hootka'
+rootProject.name = 'meccano'
 
-include('hootka-autoconfigure')
-include('hootka-core')
-include('hootka-starter')
-include('hootka-sample')
-include('hootka-transport-api')
-include('hootka-transport-netty')
-include('hootka-transport-nio')
+include('meccano-autoconfigure')
+include('meccano-core')
+include('meccano-starter')
+include('meccano-sample')
+include('meccano-transport-api')
+include('meccano-transport-netty')
+include('meccano-transport-nio')
+include('meccano-transport-netty-starter')
+include('meccano-transport-nio-starter')
 

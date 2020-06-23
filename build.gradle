@@ -100,7 +100,7 @@ subprojects {
             repo = "maven"
             name = project.name
             licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/zensoftio/hootka.git'
+            vcsUrl = 'https://github.com/gastonlagaf/meccano.git'
         }
     }
 }

@@ -1,6 +1,3 @@
-![Logo](docs/readme.png)
-
-
 ## Installation
 
 Connect repository
@@ -16,15 +13,15 @@ repositories {
 Using gradle
 
 ```groovy
-compile("io.zensoft.hootka:hootka-core:1.0.0")
+compile("com.gastonlagaf.meccano:meccano-core:1.0.0")
 ```
 
 Using maven
 
 ```xml
 <dependency>
-    <groupId>io.zensoft.hootka</groupId>
-    <artifactId>hootka-core</artifactId>
+    <groupId>com.gastonlagaf.meccano</groupId>
+    <artifactId>meccano-core</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -225,7 +222,7 @@ class UserController(
 ```
 Annotations @PreAuthorize and @Principal require security configuration.
 
-1) To declare controller add @Controller annotation from `io.zensoft.web.annotation` package 
+1) To declare controller add @Controller annotation from `com.gastonlagaf.meccano.annotation` package 
 2) Common PreAuthorize method, used for all handlers in controller
 3) Common request mapping. Each handler's path will start with this prefix
 4) Request mapping for specific method, path appended to the common mapping, so path to handler will be `/api/users/all`
@@ -235,7 +232,7 @@ Annotations @PreAuthorize and @Principal require security configuration.
 8) userId is taken from request path
 9) request field will be deserialized request JSON content
 10) set the status code of an HTTP response to header 
-11) use `io.zensoft.hootka.api.model.InMemoryFile` for upload file
+11) use `com.gastonlagaf.meccano.api.model.InMemoryFile` for upload file
 
 
 
@@ -334,7 +331,7 @@ Requests/sec:  25837.14
 Transfer/sec:      2.24MB
 ```
 
-### Hootka Stateful
+### Meccano Stateful
 
 ```
 Running 30s test @ http://host/status
@@ -352,7 +349,7 @@ Requests/sec:  65181.72
 Transfer/sec:     10.57MB
 ```
 
-### Hootka Stateless
+### Meccano Stateless
 
 ```
 Running 30s test @ http://host/status

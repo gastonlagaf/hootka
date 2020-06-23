@@ -1,7 +1,0 @@
-ext.nettyVersion = '4.1.21.Final'
-
-dependencies {
-    compile project(':hootka-transport-api')
-
-    compile("io.netty:netty-all:${nettyVersion}")
-}

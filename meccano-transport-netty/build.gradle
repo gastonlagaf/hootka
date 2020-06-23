@@ -1,0 +1,7 @@
+ext.nettyVersion = '4.1.21.Final'
+
+dependencies {
+    compile project(':meccano-transport-api')
+
+    compile("io.netty:netty-all:${nettyVersion}")
+}
