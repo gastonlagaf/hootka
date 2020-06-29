@@ -128,10 +128,9 @@ class DefaultPathMatcher : PathMatcher {
 
             templateIdxStart = templIdxTmp
             pathIdxStart = foundIdx + templLength
-
         }
 
-        // .... -> /**/**/../**/  OR -> FALSE
+        // template: .... -> /**(N)  OR -> FALSE
         for (i in templateIdxStart..templateIdxEnd) {
             if (DOUBLE_STARS != templateDirs[i]) {
                 return false
@@ -143,7 +142,19 @@ class DefaultPathMatcher : PathMatcher {
 
 
     override fun getPath(original: String, target: String): String {
-        TODO("Not yet implemented")
+        require(matches(target, original)) { return "" }
+        val pathParts = original.split('/')
+        val targetParts = target.split('/')
+
+        targetParts.forEachIndexed { idx, it ->
+            if (STAR == it) {
+                return pathParts[idx]
+            } else if (DOUBLE_STARS == it) {
+                return pathParts.joinToString(separator = "/")
+            }
+            pathParts.drop(idx)
+        }
+        return ""
     }
 
     private fun matchString(pattern: String, str: String): Boolean {
@@ -154,6 +165,7 @@ class DefaultPathMatcher : PathMatcher {
 
     companion object {
         const val PATH_SEPARATOR = "/"
+        const val STAR = "*"
         const val DOUBLE_STARS = "**"
     }
 
