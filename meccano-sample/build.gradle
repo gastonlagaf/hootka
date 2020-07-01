@@ -1,5 +1,6 @@
 dependencies {
     compile project(":meccano-starter")
+    compile project(":meccano-transport-nio-starter")
 }
 
 bootJar.enabled = true

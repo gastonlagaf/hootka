@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class NettyServerConfiguration(
     private val requestProcessor: RequestProcessor,
-    @Value("meccano.port") private val port: Int
+    @Value("\${meccano.port:8080}") private val port: Int
 ) {
 
     @Bean
@@ -26,6 +26,6 @@ class NettyServerConfiguration(
 
     @Bean
     @ConditionalOnMissingBean(HttpServer::class)
-    fun nettyHttpServer(): HttpServer = NettyServer(port, httpChannelInitializer())
+    fun nettyHttpServer(): HttpServer = NettyServer(port, httpChannelInitializer()).also { it.startup() }
 
 }
