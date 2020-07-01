@@ -4,12 +4,23 @@ package com.gastonlagaf.meccano.api.internal.path
 class DefaultPathMatcher : PathMatcher {
 
     override fun getPathVariables(template: String, actualPath: String): Map<String, String> {
-        val parametersString = actualPath.split('?').getOrElse(1) { return mapOf() }
-        val nameValues = parametersString.split('&')
-        return nameValues.map { nameValue ->
-            val parameter = nameValue.split('=')
-            parameter[0] to parameter[1]
-        }.toMap()
+        val templateDirs = template.split(PATH_SEPARATOR)
+        val pathDirs = actualPath.split(PATH_SEPARATOR)
+        val variables: MutableMap<String, String> = mutableMapOf()
+
+        require(matchString(template, actualPath) && templateDirs.size == pathDirs.size) { return (mapOf()) }
+
+        templateDirs.forEachIndexed { idx, it ->
+            if (DOUBLE_STARS == it) return mapOf()
+
+            if (it.startsWith('{') && it.endsWith('}')) {
+                val name = it.substring(1, it.length - 1)
+                val value = pathDirs[idx]
+                variables[name] = value
+            }
+        }
+
+        return variables
     }
 
     override fun matches(template: String, actualPath: String): Boolean {
@@ -22,8 +33,8 @@ class DefaultPathMatcher : PathMatcher {
 
         var pathIdxStart = 0
         var templateIdxStart = 0
-        val pathIdxEnd = pathDirs.size - 1
-        val templateIdxEnd = templateDirs.size - 1
+        var pathIdxEnd = pathDirs.size - 1
+        var templateIdxEnd = templateDirs.size - 1
 
 
         // Match all elements up to the first **
@@ -31,7 +42,7 @@ class DefaultPathMatcher : PathMatcher {
         // template:  -->  /.../**/...   OR /.../.../...
         while (pathIdxStart <= pathIdxEnd && templateIdxStart <= templateIdxEnd) {
             val pathDir = pathDirs[pathIdxStart]
-            val templateDir = templateDirs[templateIdxEnd]
+            val templateDir = templateDirs[templateIdxStart]
 
             if (DOUBLE_STARS == templateDir) {
                 break
@@ -79,8 +90,8 @@ class DefaultPathMatcher : PathMatcher {
             if (!matchString(templateDir, pathDir)) {
                 return false
             }
-            pathIdxStart--
-            templateIdxStart--
+            pathIdxEnd--
+            templateIdxEnd--
         }
 
         if (pathIdxStart > pathIdxEnd) {
@@ -143,7 +154,7 @@ class DefaultPathMatcher : PathMatcher {
 
     override fun getPath(original: String, target: String): String {
         require(matches(target, original)) { return "" }
-        val pathParts = original.split('/')
+        val pathParts = original.split('/').toMutableList()
         val targetParts = target.split('/')
 
         targetParts.forEachIndexed { idx, it ->
@@ -152,7 +163,7 @@ class DefaultPathMatcher : PathMatcher {
             } else if (DOUBLE_STARS == it) {
                 return pathParts.joinToString(separator = "/")
             }
-            pathParts.drop(idx)
+            pathParts.removeAt(0)
         }
         return ""
     }
